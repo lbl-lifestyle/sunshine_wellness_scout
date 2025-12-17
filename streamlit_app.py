@@ -79,7 +79,7 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
             """
 
             response = client.chat.completions.create(
-                model="grok-4.1-fast-reasoning",
+                model="grok-4-1-fast-reasoning",
                 messages=[
                     {"role": "system", "content": "You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties."},
                     {"role": "user", "content": full_prompt}
@@ -172,6 +172,7 @@ Sunshine State Wellness Scout Team
 st.markdown("---")
 
 st.caption("Powered by Grok (xAI) • Sunshine State Wellness Lifestyle Scout | Completely Free Tool")
+
 
 
 

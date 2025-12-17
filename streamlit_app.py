@@ -4,7 +4,6 @@ from openai import OpenAI
 import re
 
 # === API KEYS FROM SECRETS ONLY ===
-# These will be loaded securely from Streamlit Secrets (no hardcoding)
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
 YOUR_EMAIL = st.secrets["YOUR_EMAIL"]
@@ -16,14 +15,12 @@ client = OpenAI(
 
 # Page setup
 st.set_page_config(page_title="Sunshine State Wellness Home Scout", page_icon="☀️", layout="centered")
-
 st.title("☀️ Sunshine State Wellness & Active Lifestyle Home Scout")
 st.markdown("*Find Florida homes that fit how you want to live – trails, gym space, natural light, and more*")
-
 st.success("**This tool is completely free – no cost, no obligation!**")
 
 st.write("""
-Describe your ideal lifestyle, budget, and preferred area.  
+Describe your ideal lifestyle, budget, and preferred area.
 Get an instant free teaser – enter your info for the full personalized report emailed to you.
 """)
 
@@ -48,71 +45,81 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
             full_prompt = f"""
             Client description:
             {client_needs}
-
             Budget: ${budget:,}
             Preferred location(s) in Florida: {location}
 
-            You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties.
-            Provide robust, detailed recommendations in this EXACT structure (use these headings and numbering, with detailed explanations for each neighborhood and feature):
+            You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties. 
+            Write in a warm, conversational tone like a trusted local advisor who's genuinely excited to help them find their perfect active-lifestyle home.
+
+            Provide robust, detailed recommendations in this EXACT structure (use these headings and numbering, with rich, in-depth explanations):
 
             ### Introduction
-            [2-3 sentence intro about the fit]
+            [3-5 sentence personalized intro about how well their lifestyle fits Florida living]
 
             ### Top 5 Neighborhoods/Suburbs and Why They Fit
-            1. [Neighborhood 1] - [Robust, detailed reason why it fits, 2-3 sentences]
-            2. [Neighborhood 2] - [Robust, detailed reason why it fits, 2-3 sentences]
-            3. [Neighborhood 3] - [Robust, detailed reason why it fits, 2-3 sentences]
-            4. [Neighborhood 4] - [Robust, detailed reason why it fits, 2-3 sentences]
-            5. [Neighborhood 5] - [Robust, detailed reason why it fits, 2-3 sentences]
+            1. [Neighborhood 1] - [In-depth reason why it fits: include specific trails/parks, wellness amenities (gyms, yoga studios, spas), community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and exactly how it supports their described active lifestyle. 4-7 sentences.]
+            2. [Neighborhood 2] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
+            3. [Neighborhood 3] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
+            4. [Neighborhood 4] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
+            5. [Neighborhood 5] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
 
             ### Top 5 Must-Have Home Features
-            1. [Feature 1] - [Robust, detailed reason why important, 2-3 sentences]
-            2. [Feature 2] - [Robust, detailed reason why important, 2-3 sentences]
-            3. [Feature 3] - [Robust, detailed reason why important, 2-3 sentences]
-            4. [Feature 4] - [Robust, detailed reason why important, 2-3 sentences]
-            5. [Feature 5] - [Robust, detailed reason why important, 2-3 sentences]
+            1. [Feature 1] - [In-depth explanation why it's essential for their wellness goals, including real-life examples of how it enhances daily routines, health, and happiness. 4-7 sentences.]
+            2. [Feature 2] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
+            3. [Feature 3] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
+            4. [Feature 4] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
+            5. [Feature 5] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
 
             ### Wellness/Outdoor Highlights
-            [3-5 sentences on key highlights like trails, communities, etc.]
+            [5-8 rich sentences on key regional highlights: notable trails, parks, waterfront access, fitness communities, farmers markets, outdoor events, and year-round sunshine advantages]
 
-            Use friendly, structured markdown with bold headings.
+            Use friendly, engaging markdown with bold headings and natural paragraph flow.
             """
 
-            response = client.chat.completions.create(
-                model="grok-4-1-fast-reasoning",
-                messages=[
-                    {"role": "system", "content": "You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties."},
-                    {"role": "user", "content": full_prompt}
-                ],
-                max_tokens=1500,
-                temperature=0.7
-            )
+            try:
+                response = client.chat.completions.create(
+                    model="grok-4-1-fast-reasoning",
+                    messages=[
+                        {"role": "system", "content": "You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties."},
+                        {"role": "user", "content": full_prompt}
+                    ],
+                    max_tokens=1500,
+                    temperature=0.7
+                )
+                full_report = response.choices[0].message.content
+            except Exception as e:
+                st.error("Sorry! Grok is taking a quick sunshine break. Please try again in a moment.")
+                st.caption(f"Technical note: {str(e)}")
+                st.stop()
 
-            full_report = response.choices[0].message.content
-
-            # === TEASER: 2 + 2 WITH HEADINGS & BULLETS ===
+            # === TEASER ===
             teaser = "**Free Teaser – Here's a preview of your personalized matches**\n\n"
 
             # Introduction
-            intro_match = re.search(r'### Introduction(.*?)### Top 5 Neighborhoods', full_report, re.DOTALL)
+            intro_match = re.search(r'### Introduction\s*(.*?)(###|$)', full_report, re.DOTALL | re.IGNORECASE)
             if intro_match:
                 teaser += intro_match.group(1).strip() + "\n\n"
 
-            # Top 2 Neighborhoods
+            # Top 2 Neighborhoods (separate name + full detailed paragraph)
             teaser += "**Top 2 Recommended Neighborhoods (of 5)**\n\n"
-            neighborhood_lines = re.findall(r'^\d+\.\s*(.+)', full_report.split('### Top 5 Neighborhoods/Suburbs')[1].split('### Top 5 Must-Have')[0], re.MULTILINE)[:2]
-            teaser += "\n".join([f"• {line}" for line in neighborhood_lines]) + "\n\n"
+            neighborhoods_section = re.search(r'### Top 5 Neighborhoods.*?###', full_report, re.DOTALL | re.IGNORECASE)
+            if neighborhoods_section:
+                neighborhood_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', neighborhoods_section.group(0))[:2]
+                for num, name, desc in neighborhood_matches:
+                    teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
 
             # Top 2 Must-Have Features
             teaser += "**Top 2 Must-Have Home Features (of 5)**\n\n"
-            feature_lines = re.findall(r'^\d+\.\s*(.+)', full_report.split('### Top 5 Must-Have Home Features')[1].split('### Wellness')[0], re.MULTILINE)[:2]
-            teaser += "\n".join([f"• {line}" for line in feature_lines]) + "\n\n"
+            features_section = re.search(r'### Top 5 Must-Have Home Features.*?###', full_report, re.DOTALL | re.IGNORECASE)
+            if features_section:
+                feature_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', features_section.group(0))[:2]
+                for num, name, desc in feature_matches:
+                    teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
 
             # Wellness Highlight
             teaser += "**Wellness Teaser Highlight**\n"
-            teaser += "Great trail access, wellness communities, and homes designed for active living in the Sunshine State...\n\n"
-
-            teaser += "**This tool is completely free!** Like what you see? Get the **full report** with all 5 neighborhoods, complete features, wellness details, and more – instantly emailed to you."
+            teaser += "Year-round sunshine, miles of trails, waterfront access, and vibrant wellness communities make Florida the perfect backdrop for your active lifestyle...\n\n"
+            teaser += "**This tool is completely free!** Get the **full in-depth report** with all 5 neighborhoods, features, and highlights – instantly emailed to you."
 
             st.success("Here's your free teaser!")
             st.markdown(teaser)
@@ -131,7 +138,6 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
                     if not email:
                         st.error("Email is required for the report!")
                     else:
-                        # Send email via Resend
                         data = {
                             "from": "onboarding@resend.dev",
                             "to": [email],
@@ -146,18 +152,16 @@ Here's your full personalized report:
 
 {full_report}
 
-I'll follow up soon if you'd like to discuss your matches.
+I'll follow up soon if you'd like to chat more about your perfect Florida home.
 
 Best regards,
 Sunshine State Wellness Scout Team
                             """
                         }
-
                         headers = {
                             "Authorization": f"Bearer {RESEND_API_KEY}",
                             "Content-Type": "application/json"
                         }
-
                         try:
                             response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                             if response.status_code == 200:
@@ -170,9 +174,4 @@ Sunshine State Wellness Scout Team
 
 # Footer
 st.markdown("---")
-
-st.caption("Powered by Grok (xAI) • Sunshine State Wellness Lifestyle Scout | Completely Free Tool")
-
-
-
-
+st.markdown("<small>Powered by Grok (xAI) • Sunshine State Wellness Lifestyle Scout | Completely Free Tool<br>Real estate recommendations powered by Grok • Not affiliated with any brokerage</small>", unsafe_allow_html=True)

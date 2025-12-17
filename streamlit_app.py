@@ -34,8 +34,8 @@ st.markdown("""
 st.markdown("<h1 class='main-header'>LBL Wellness Solutions</h1>", unsafe_allow_html=True)
 st.markdown("<p class='tagline'>Your Holistic Longevity Blueprint</p>", unsafe_allow_html=True)
 
-# Fixed hero image – beautiful Florida sunset trail (loads reliably)
-st.image("https://www.florida-backroads-travel.com/images/xsunset-on-florida-trail.jpg.pagespeed.ic.jb8i8j8j8j.jpg", use_column_width=True, caption="Your Florida Longevity Lifestyle – Active Trails at Sunset")
+# Original hero image that worked perfectly — tropical sunset beach with pier and palms
+st.image("https://thumbs.dreamstime.com/b/tropical-sunset-beach-scene-pier-palm-trees-vibrant-colors-serene-water-rocky-shore-ai-generated-356600072.jpg", use_column_width=True, caption="Your Florida Longevity Lifestyle – Active Trails at Sunset")
 
 # === Meet Your LBL Wellness Team ===
 st.markdown("### Meet Your LBL Wellness Team")
@@ -47,7 +47,7 @@ with cols[0]:
     st.image("https://thumbs.dreamstime.com/b/cartoon-realtor-presenting-colorful-house-model-style-stands-facing-forward-white-background-wearing-dark-blue-suit-393019561.jpg", width=150)
     st.markdown("**Fred**")
     st.markdown("*Wellness Home Scout*  \nProfessional goal-focused realtor")
-    if st.button("Talk to Fred", key="fred", use_container_width=True):
+    if st.button("Talk to Fred", key="fred", use_column_width=True):
         st.session_state.selected_agent = "fred"
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -56,7 +56,7 @@ with cols[1]:
     st.image("https://www.shutterstock.com/image-vector/man-struggling-lift-heavy-barbell-260nw-2699957111.jpg", width=150)
     st.markdown("**Greg**")
     st.markdown("*Personal Trainer*  \nMotivated gym rat")
-    if st.button("Talk to Greg", key="greg", use_container_width=True):
+    if st.button("Talk to Greg", key="greg", use_column_width=True):
         st.session_state.selected_agent = "greg"
     st.markdown("</div>", unsafe_allow_html=True)
 

@@ -3,6 +3,11 @@ import requests
 from openai import OpenAI
 import re
 
+# Initialize session state for persistent email status
+if "email_status" not in st.session_state:
+    st.session_state.email_status = None
+    st.session_state.email_message = ""
+
 # === API KEYS FROM SECRETS ONLY ===
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
@@ -48,32 +53,31 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
             Budget: ${budget:,}
             Preferred location(s) in Florida: {location}
 
-            You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties. 
-            Write in a warm, conversational tone like a trusted local advisor who's genuinely excited to help them find their perfect active-lifestyle home.
+            You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties.
 
-            Provide robust, detailed recommendations in this EXACT structure (use these headings and numbering, with rich, in-depth explanations):
+            Follow this EXACT structure with no deviations. Use the precise bracket format for every neighborhood and feature.
 
             ### Introduction
-            [3-5 sentence personalized intro about how well their lifestyle fits Florida living]
+            3-5 sentences introducing how well their needs match the area and budget.
 
             ### Top 5 Neighborhoods/Suburbs and Why They Fit
-            1. [Neighborhood 1] - [In-depth reason why it fits: include specific trails/parks, wellness amenities (gyms, yoga studios, spas), community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and exactly how it supports their described active lifestyle. 4-7 sentences.]
-            2. [Neighborhood 2] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
-            3. [Neighborhood 3] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
-            4. [Neighborhood 4] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
-            5. [Neighborhood 5] - [In-depth reason why it fits: include specific trails/parks, wellness amenities, community vibe, typical home styles, proximity to nature/water, year-round outdoor access, and how it supports their lifestyle. 4-7 sentences.]
+            1. [Neighborhood Name Here] - [Detailed explanation: include specific trails/parks by name if possible, wellness amenities (gyms, yoga studios, community centers), community vibe, typical home styles available in this budget range, proximity to water/nature, and exactly how it supports their active lifestyle and home workout needs. 5-8 full sentences.]
+            2. [Neighborhood Name Here] - [Same level of depth and detail. 5-8 sentences.]
+            3. [Neighborhood Name Here] - [Same level of depth and detail. 5-8 sentences.]
+            4. [Neighborhood Name Here] - [Same level of depth and detail. 5-8 sentences.]
+            5. [Neighborhood Name Here] - [Same level of depth and detail. 5-8 sentences.]
 
             ### Top 5 Must-Have Home Features
-            1. [Feature 1] - [In-depth explanation why it's essential for their wellness goals, including real-life examples of how it enhances daily routines, health, and happiness. 4-7 sentences.]
-            2. [Feature 2] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
-            3. [Feature 3] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
-            4. [Feature 4] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
-            5. [Feature 5] - [In-depth explanation why it's essential: real examples of daily benefits. 4-7 sentences.]
+            1. [Feature Name Here] - [In-depth reason why essential: explain daily benefits, health impact, real-life examples of use, and how it aligns with their wellness goals. 5-8 sentences.]
+            2. [Feature Name Here] - [Same depth and detail. 5-8 sentences.]
+            3. [Feature Name Here] - [Same depth and detail. 5-8 sentences.]
+            4. [Feature Name Here] - [Same depth and detail. 5-8 sentences.]
+            5. [Feature Name Here] - [Same depth and detail. 5-8 sentences.]
 
             ### Wellness/Outdoor Highlights
-            [5-8 rich sentences on key regional highlights: notable trails, parks, waterfront access, fitness communities, farmers markets, outdoor events, and year-round sunshine advantages]
+            6-10 sentences covering key trails, parks, waterfront access, fitness communities, farmers markets, outdoor events, year-round climate advantages, and wellness resources in the region.
 
-            Use friendly, engaging markdown with bold headings and natural paragraph flow.
+            Use clear, professional language. Do not add extra commentary or deviate from this structure.
             """
 
             try:
@@ -83,7 +87,7 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
                         {"role": "system", "content": "You are an expert Florida real estate advisor specializing in wellness and active lifestyle properties."},
                         {"role": "user", "content": full_prompt}
                     ],
-                    max_tokens=1500,
+                    max_tokens=2000,  # Increased slightly for longer responses
                     temperature=0.7
                 )
                 full_report = response.choices[0].message.content
@@ -92,7 +96,11 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
                 st.caption(f"Technical note: {str(e)}")
                 st.stop()
 
-            # === TEASER ===
+            # Reset email status when generating a new report
+            st.session_state.email_status = None
+            st.session_state.email_message = ""
+
+            # === BUILD TEASER ===
             teaser = "**Free Teaser – Here's a preview of your personalized matches**\n\n"
 
             # Introduction
@@ -100,25 +108,37 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
             if intro_match:
                 teaser += intro_match.group(1).strip() + "\n\n"
 
-            # Top 2 Neighborhoods (separate name + full detailed paragraph)
+            # Top 2 Neighborhoods
             teaser += "**Top 2 Recommended Neighborhoods (of 5)**\n\n"
             neighborhoods_section = re.search(r'### Top 5 Neighborhoods.*?###', full_report, re.DOTALL | re.IGNORECASE)
             if neighborhoods_section:
-                neighborhood_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', neighborhoods_section.group(0))[:2]
-                for num, name, desc in neighborhood_matches:
-                    teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
+                # Primary: bracket format
+                bracket_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', neighborhoods_section.group(0))[:2]
+                if bracket_matches:
+                    for num, name, desc in bracket_matches:
+                        teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
+                else:
+                    # Fallback: any numbered line
+                    plain_matches = re.findall(r'^\d+\.\s*(.+)', neighborhoods_section.group(0), re.MULTILINE)[:2]
+                    for i, line in enumerate(plain_matches, 1):
+                        teaser += f"**{i}. {line.strip()}**\n\n"
 
             # Top 2 Must-Have Features
             teaser += "**Top 2 Must-Have Home Features (of 5)**\n\n"
             features_section = re.search(r'### Top 5 Must-Have Home Features.*?###', full_report, re.DOTALL | re.IGNORECASE)
             if features_section:
-                feature_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', features_section.group(0))[:2]
-                for num, name, desc in feature_matches:
-                    teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
+                bracket_matches = re.findall(r'(\d+\.\s*\[([^\]]+)\]\s*-\s*\[([^\]]+)\])', features_section.group(0))[:2]
+                if bracket_matches:
+                    for num, name, desc in bracket_matches:
+                        teaser += f"**{num.strip()} {name.strip()}**\n{desc.strip()}\n\n"
+                else:
+                    plain_matches = re.findall(r'^\d+\.\s*(.+)', features_section.group(0), re.MULTILINE)[:2]
+                    for i, line in enumerate(plain_matches, 1):
+                        teaser += f"**{i}. {line.strip()}**\n\n"
 
-            # Wellness Highlight
+            # Wellness highlight
             teaser += "**Wellness Teaser Highlight**\n"
-            teaser += "Year-round sunshine, miles of trails, waterfront access, and vibrant wellness communities make Florida the perfect backdrop for your active lifestyle...\n\n"
+            teaser += "Year-round sunshine, extensive trail systems, waterfront access, and thriving fitness communities make this area ideal for your active lifestyle.\n\n"
             teaser += "**This tool is completely free!** Get the **full in-depth report** with all 5 neighborhoods, features, and highlights – instantly emailed to you."
 
             st.success("Here's your free teaser!")
@@ -126,7 +146,7 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
 
             # === LEAD CAPTURE ===
             st.markdown("### Get Your Full Free Report")
-            st.info("Enter your info – I'll email the complete report instantly (no spam, just helpful info).")
+            st.info("Enter your info below – the complete detailed report will be emailed instantly (no spam).")
 
             with st.form("lead_form"):
                 name = st.text_input("Your Name")
@@ -142,17 +162,17 @@ if st.button("🔍 Show Me Free Teaser Matches", type="primary"):
                             "from": "onboarding@resend.dev",
                             "to": [email],
                             "cc": [YOUR_EMAIL],
-                            "subject": f"{name}'s Sunshine State Wellness Report (Free)",
+                            "subject": f"{name}'s Personalized Sunshine State Wellness Home Report",
                             "text": f"""
 Hi {name},
 
-Thanks for using the Sunshine State Wellness Home Scout – it's completely free!
+Thank you for using the Sunshine State Wellness Home Scout – it's 100% free!
 
-Here's your full personalized report:
+Here's your full personalized report based on your description:
 
 {full_report}
 
-I'll follow up soon if you'd like to chat more about your perfect Florida home.
+Feel free to reply if you'd like to discuss these recommendations further.
 
 Best regards,
 Sunshine State Wellness Scout Team
@@ -165,12 +185,21 @@ Sunshine State Wellness Scout Team
                         try:
                             response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                             if response.status_code == 200:
-                                st.success(f"Full free report sent to {email}! Check your inbox.")
-                                st.balloons()
+                                st.session_state.email_status = "success"
+                                st.session_state.email_message = f"Full report successfully sent to {email}! Check your inbox (and spam folder)."
                             else:
-                                st.error(f"Send failed (code {response.status_code}): {response.text}")
+                                st.session_state.email_status = "error"
+                                st.session_state.email_message = f"Email send failed (code {response.status_code}). Try again or contact support."
                         except Exception as e:
-                            st.error(f"Send failed: {str(e)}")
+                            st.session_state.email_status = "error"
+                            st.session_state.email_message = f"Send error: {str(e)}"
+
+            # Persistent email status message
+            if st.session_state.email_status == "success":
+                st.success(st.session_state.email_message)
+                st.balloons()
+            elif st.session_state.email_status == "error":
+                st.error(st.session_state.email_message)
 
 # Footer
 st.markdown("---")

@@ -255,7 +255,7 @@ elif st.session_state.selected_agent == "greg":
     age = st.slider("Your age", 18, 80, 45)
     fitness_level = st.selectbox("Current fitness level", ["Beginner", "Intermediate", "Advanced"])
     goals = st.multiselect("Primary goals", ["Build strength", "Improve endurance", "Lose fat", "Gain muscle", "Increase flexibility", "Better mobility", "General wellness"])
-    equipment = st.multiselect("Available equipment", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", Community gym resistance machines"])
+    equipment = st.multiselect("Available equipment", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", "Community gym resistance machines"])
     injuries = st.text_area("Any injuries or limitations? (optional)")
     days_per_week = st.slider("Days per week you can train", 1, 7, 4)
     session_length = st.selectbox("Preferred session length", ["20-30 minutes", "30-45 minutes", "45-60 minutes"])
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

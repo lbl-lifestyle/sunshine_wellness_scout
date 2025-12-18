@@ -65,7 +65,7 @@ cols = st.columns(3)
 with cols[0]:
     st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
     st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=150)
-    st.markdown("*WELLNESS HOME SCOUT*  \nA professional goal-focused realtor who knows how to match you lifestyle needs")
+    st.markdown("*WELLNESS HOME SCOUT*  \nA goal-focused realtor. Lets start with a tailored home report")
     if st.button("CLICK HERE TO MEET FRED", key="fred", use_container_width=True):
         st.session_state.selected_agent = "fred"
     st.markdown("</div>", unsafe_allow_html=True)
@@ -73,7 +73,7 @@ with cols[0]:
 with cols[1]:
     st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
     st.image("https://i.postimg.cc/xC8yqc1j/vitaly-gariev-r-D0po-Llu57M-unsplash.jpg", width=150)
-    st.markdown("*PERSONAL TRAINER*  \nA motivated lifestyle coach dedicated to helping meet you fitness needs")
+    st.markdown("*PERSONAL TRAINER*  \nA motivated lifestyle. Let start with a tailored workout")
     if st.button("CLICK HERE TO MEET GREG", key="greg", use_container_width=True):
         st.session_state.selected_agent = "greg"
     st.markdown("</div>", unsafe_allow_html=True)
@@ -81,8 +81,8 @@ with cols[1]:
 with cols[2]:
     st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
     st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=150)
-    st.markdown("*Health Assessor*  \nCompassionate wellness guide")
-    if st.button("CLICK HERE TO MEET NURSE ZOE", key="zoey", use_container_width=True):
+    st.markdown("*Health Assessor*  \nA compassionate wellness guide. Ask Zoey any health question")
+    if st.button("CLICK HERE TO MEET ZOEY", key="zoey", use_container_width=True):
         st.session_state.selected_agent = "zoey"
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

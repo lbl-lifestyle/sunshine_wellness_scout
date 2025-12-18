@@ -254,11 +254,11 @@ elif st.session_state.selected_agent == "greg":
 
     age = st.slider("Your age", 18, 80, 45)
     fitness_level = st.selectbox("CURRENT FITNESS LEVEL", ["Beginner", "Intermediate", "Advanced"])
-    goals = st.multiselect("Primary goals", ["Build strength", "Improve endurance", "Lose fat", "Gain muscle", "Increase flexibility", "Better mobility", "General wellness"])
-    equipment = st.multiselect("Available equipment", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", "Community gym resistance machines"])
-    injuries = st.text_area("Any injuries or limitations? (optional)")
-    days_per_week = st.slider("Days per week you can train", 1, 7, 4)
-    session_length = st.selectbox("Preferred session length", ["20-30 minutes", "30-45 minutes", "45-60 minutes"])
+    goals = st.multiselect("PRIMARY GOALS", ["Build strength", "Improve endurance", "Lose fat", "Gain muscle", "Increase flexibility", "Better mobility", "General wellness"])
+    equipment = st.multiselect("AVAILABLE EQUIPMENT", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", "Community gym resistance machines"])
+    injuries = st.text_area("ANY INJURIES OR LIMITATIONS? (optional)")
+    days_per_week = st.slider("DAYS PER WEEK YOU CAN TRAIN", 1, 7, 4)
+    session_length = st.selectbox("PREFERRED SESSION LENGTH", ["20-30 minutes", "30-45 minutes", "45-60 minutes"])
 
     if st.button("Generate My Custom Workout Plan", type="primary"):
         with st.spinner("Greg is building your plan..."):
@@ -296,7 +296,7 @@ elif st.session_state.selected_agent == "greg":
                 st.caption(f"Note: {str(e)}")
 
 elif st.session_state.selected_agent == "zoey":
-    st.markdown("### 🩺 Dr. Zoey Zoe – Your Health Assessor")
+    st.markdown("### 🩺 GREETINGS. IM NURSE. ZOEY ZOE – your friendly nurse assistant, here to support you with compassionate and reliable guidance every step of the way. I can help you understand medical conditions, symptoms, treatments, and medications in simple, easy-to-follow terms; offer general advice on managing everyday health concerns like pain relief, wound care, or chronic issues such as diabetes or hypertension; provide tips for wellness, nutrition, exercise, and mental health support; explain procedures or post-care instructions; assist caregivers with practical strategies for supporting loved ones; and always listen with empathy to offer reassurance during stressful times—remember, though, I'm here for information and support, so please consult your healthcare provider for personalized advice or emergencies.   ")
     st.warning("**Important**: This is for educational purposes only. I do not provide medical diagnoses or treatment. Always consult a licensed healthcare professional.")
     st.write("Upload labs or enter data for general insights, or ask wellness questions.")
 
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

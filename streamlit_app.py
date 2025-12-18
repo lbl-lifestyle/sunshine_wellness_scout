@@ -58,7 +58,7 @@ st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 st.image("https://images.unsplash.com/photo-1507525428034-b723cf961d3e", use_column_width=True, caption="Your Florida Longevity Lifestyle – Active Trails at Sunset")
 
 # === MEET YOUR LBL LIFESTYLE TEAM ===
-st.markdown("### Meet Your LBL Lifestyle Team")
+st.markdown("### MEET YOUR LBL LIFESTYLE TEAM")
 
 cols = st.columns(3)
 
@@ -90,7 +90,7 @@ st.markdown("---")
 
 # === Agent Content ===
 if st.session_state.selected_agent == "fred":
-    st.markdown("### 🏡 Fred – Your Wellness Home Scout")
+    st.markdown("### 🏡 FRED – Your Wellness Home Scout")
     st.success("**This tool is completely free – no cost, no obligation!**")
     st.write("Find the perfect Florida home that supports trails, natural light, home gym space, and active living.")
 
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

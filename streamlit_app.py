@@ -297,7 +297,7 @@ elif st.session_state.selected_agent == "greg":
                 st.caption(f"Note: {str(e)}")
 
 elif st.session_state.selected_agent == "zoey":
-    st.markdown("### 🩺 GREETINGS. IM NURSE. ZOEY ZOE – your friendly nurse assistant, here to support you with compassionate and reliable guidance every step of the way.   ")
+    st.markdown("### 🩺 GREETINGS. IM NURSE ZOEY ZOE – your friendly nurse assistant, here to support you with compassionate and reliable guidance every step of the way.   ")
     st.write("I can help you understand medical conditions, symptoms, treatments, and medications in simple, easy-to-follow terms; offer general advice on managing everyday health concerns like pain relief, wound care, or chronic issues such as diabetes or hypertension; provide tips for wellness, nutrition, exercise, and mental health support; explain procedures or post-care instructions; assist caregivers with practical strategies for supporting loved ones; and always listen with empathy to offer reassurance during stressful times—remember, though, I'm here for information and support, so please consult your healthcare provider for personalized advice or emergencies..")
     st.warning("**Important**: This is for educational purposes only. I do not provide medical diagnoses or treatment. Always consult a licensed healthcare professional.")
     st.write("Upload labs or enter data for general insights, or ask wellness questions.")
@@ -347,6 +347,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

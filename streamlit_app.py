@@ -72,7 +72,7 @@ with cols[0]:
 
 with cols[1]:
     st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
-    st.image("https://i.postimg.cc/xC8yqc1j/vitaly-gariev-r-D0po-Llu57M-unsplash.jpg", width=150)
+    st.image("https://i.postimg.cc/yxf3Szvc/pexels-andres-ayrton-6551079.jpg", width=150)
     st.markdown("*PERSONAL TRAINER*  \nA motivated lifestyle. Let start with a tailored workout")
     if st.button("CLICK HERE TO MEET GREG", key="greg", use_container_width=True):
         st.session_state.selected_agent = "greg"
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

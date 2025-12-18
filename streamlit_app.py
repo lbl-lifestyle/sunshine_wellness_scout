@@ -65,8 +65,8 @@ cols = st.columns(3)
 with cols[0]:
     st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
     st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=150)
-    st.markdown("*Wellness Home Scout*  \nA professional goal-focused realtor who know how to match you lifestyle needs")
-    if st.button("INTERACT WITH FRED", key="fred", use_container_width=True):
+    st.markdown("*WELLNESS HOME SCOUT*  \nA professional goal-focused realtor who know how to match you lifestyle needs")
+    if st.button("CLICK HERE TO LET FRED MATCH YOU WITH YOUR DREAM HOME", key="fred", use_container_width=True):
         st.session_state.selected_agent = "fred"
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -345,6 +345,7 @@ elif st.session_state.selected_agent == "zoey":
 # Footer
 st.markdown("---")
 st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+
 
 
 

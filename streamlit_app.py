@@ -10,7 +10,7 @@ if "email_status" not in st.session_state:
 if "selected_agent" not in st.session_state:
     st.session_state.selected_agent = None
 if "chat_history" not in st.session_state:
-    st.session_state.chat_history = {}  # {agent: list of messages}
+    st.session_state.chat_history = {}
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
@@ -36,70 +36,68 @@ st.markdown("""
     .chat-container { margin-top: 3rem; padding: 1.5rem; background: rgba(255,255,255,0.9); border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     .user-message { background: #ea580c; color: white; padding: 12px; border-radius: 15px; margin: 8px 0; text-align: right; max-width: 80%; margin-left: auto; }
     .assistant-message { background: #f0f0f0; color: #0c4a6e; padding: 12px; border-radius: 15px; margin: 8px 0; max-width: 80%; }
+    .back-button { margin-bottom: 2rem; }
 </style>
 """, unsafe_allow_html=True)
 
-# Header & Hero
 st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
 st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
+
+# Hero image
 st.image("https://i.postimg.cc/tgsgw1dW/image.jpg", use_column_width=True, caption="Your Longevity Blueprint")
 
-# Motivating section
-st.markdown("<h2 class='motivation-header'>Unlock Your Vibrant Longevity Lifestyle Today!</h2>", unsafe_allow_html=True)
+# Onboarding / How It Works
+st.markdown("<h2 class='motivation-header'>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
 st.markdown("""
 <div class='motivation-text'>
-Get ready to <strong>live better longer</strong> than ever before with LBL Lifestyle Solutions—your ultimate holistic longevity blueprint for an active, healthy life anywhere in the U.S.!<br><br>
-Our powerhouse team is here to fuel your transformation: Fred the Wellness Home Scout finds your dream active-living paradise, Greg the fired-up Personal Trainer builds custom routines to make you stronger and unstoppable, and Nurse Zoey Zoe the caring Health Assessor delivers proactive insights to keep you thriving.<br><br>
-Imagine waking up energized, hitting scenic trails, crushing workouts, and feeling incredible every single day—physically, mentally, and emotionally on fire!<br><br>
-Jump in now and unlock the vibrant, joyful life you deserve—your best years are just getting started!
+1. **Choose Your Agent** – Click one of the team members below to get started.<br><br>
+2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
+3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>
+Ready to live better longer? 👇 Pick an agent below!
 </div>
 """, unsafe_allow_html=True)
 
-# Team selection
-st.markdown("### MEET THE LIFESTYLE TEAM")
-cols = st.columns(3)
-
-with cols[0]:
-    st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
-    st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR WELLNESS HOME SCOUT* <br>A goal-focused realtor. Lets start by generating a detailed report of home options that match your lifestyle needs — anywhere in the U.S.!</div>", unsafe_allow_html=True)
-    if st.button("CLICK HERE TO GET STARTED", key="fred", use_container_width=True):
-        st.session_state.selected_agent = "fred"
-
-with cols[1]:
-    st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
-    st.image("https://i.postimg.cc/yxf3Szvc/pexels-andres-ayrton-6551079.jpg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR PERSONAL TRAINER* <br>A motivated lifestyle coach. Let start with a workout routine tailored to your fitness goals and health needs to Live Better Longer.</div>", unsafe_allow_html=True)
-    if st.button("CLICK HERE TO GET STARTED", key="greg", use_container_width=True):
-        st.session_state.selected_agent = "greg"
-
-with cols[2]:
-    st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
-    st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR HEALTH ASSESSOR* <br>A compassionate wellness guide. Ask Zoey any health question. She can help you develop a proactive health lifestyle</div>", unsafe_allow_html=True)
-    if st.button("CLICK HERE TO GET STARTED", key="zoey", use_container_width=True):
-        st.session_state.selected_agent = "zoey"
-
-st.markdown("---")
-
-# Model
-MODEL_NAME = "grok-4-1-fast-reasoning"
-
-# Agent system prompts for chat
-def get_chat_system_prompt(agent):
-    if agent == "fred":
-        return "You are Fred, a professional, goal-focused real estate advisor specializing in wellness homes across the U.S. Be friendly and enthusiastic. Only answer real estate/location questions. If asked about fitness or health, say: 'That's Greg's or Nurse Zoey Zoe's expertise — go chat with them!'"
-    elif agent == "greg":
-        return "You are Greg, an energetic, motivating personal trainer. Use gym rat energy. Only answer fitness/workout questions. If asked about homes or health, say: 'Fred handles homes, Nurse Zoey Zoe handles health — talk to them!'"
-    elif agent == "zoey":
-        return "You are Nurse Zoey Zoe, a compassionate nurse. Be warm and reassuring. Only general wellness education — never diagnose. If asked about workouts or homes, say: 'Greg can help with workouts, Fred with homes — head over there!'"
-
-# === Agent Content + Chat ===
+# Back button when an agent is selected
 if st.session_state.selected_agent:
+    if st.button("← Back to Team", key="back_to_team", use_container_width=False):
+        st.session_state.selected_agent = None
+        st.session_state.chat_history = {}
+        st.rerun()
+
+# Team selection (only show if no agent selected)
+if not st.session_state.selected_agent:
+    st.markdown("### MEET THE LIFESTYLE TEAM")
+    st.markdown("<p style='text-align:center; color:#0c4a6e; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
+
+    cols = st.columns(3)
+
+    with cols[0]:
+        st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
+        st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=200)
+        st.markdown("<div class='agent-desc'>*YOUR WELLNESS HOME SCOUT* <br>A goal-focused realtor. Lets start by generating a detailed report of home options that match your lifestyle needs — anywhere in the U.S.!</div>", unsafe_allow_html=True)
+        if st.button("Talk to Fred →", key="fred", use_container_width=True):
+            st.session_state.selected_agent = "fred"
+
+    with cols[1]:
+        st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
+        st.image("https://i.postimg.cc/yxf3Szvc/pexels-andres-ayrton-6551079.jpg", width=200)
+        st.markdown("<div class='agent-desc'>*YOUR PERSONAL TRAINER* <br>A motivated lifestyle coach. Let start with a workout routine tailored to your fitness goals and health needs to Live Better Longer.</div>", unsafe_allow_html=True)
+        if st.button("Talk to Greg →", key="greg", use_container_width=True):
+            st.session_state.selected_agent = "greg"
+
+    with cols[2]:
+        st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
+        st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=200)
+        st.markdown("<div class='agent-desc'>*YOUR HEALTH ASSESSOR* <br>A compassionate wellness guide. Ask Zoey any health question. She can help you develop a proactive health lifestyle</div>", unsafe_allow_html=True)
+        if st.button("Talk to Nurse Zoey Zoe →", key="zoey", use_container_width=True):
+            st.session_state.selected_agent = "zoey"
+
+else:
+    # Selected agent view
     agent = st.session_state.selected_agent
     agent_name = "Fred" if agent == "fred" else "Greg" if agent == "greg" else "Nurse Zoey Zoe"
 
-    # Original agent feature (report/plan/insights)
+    # Agent-specific content
     if agent == "fred":
         st.markdown("### 🏡 FRED – Your Wellness Home Scout")
         st.success("**This tool is completely free – no cost, no obligation! You will receive the full personalized report below and via email.**")
@@ -316,7 +314,7 @@ Fred & the LBL Team
                         st.error("Nurse Zoey Zoe is consulting... try again.")
                         st.caption(f"Note: {str(e)}")
 
-    # === Chat Box (for follow-ups) ===
+    # Chat Box (for follow-ups)
     st.markdown("### Have a follow-up question? Chat with me!")
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
@@ -354,7 +352,7 @@ Fred & the LBL Team
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
                 st.caption(f"Error: {str(e)}")
 
-        st.rerun()  # Refresh to show new message
+        st.rerun()
 
     st.markdown("</div>", unsafe_allow_html=True)
 

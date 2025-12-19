@@ -29,7 +29,7 @@ if st.button("← Back to Team"):
     st.session_state.chat_history = {}
     st.rerun()
 
-# Auto-scroll to start of interaction
+# Auto-scroll to hero image
 st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
 st.markdown("""
 <script>

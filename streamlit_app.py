@@ -1,6 +1,6 @@
 import streamlit as st
 
-# CSS
+# CSS (same as before)
 st.markdown("""
 <style>
     .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }

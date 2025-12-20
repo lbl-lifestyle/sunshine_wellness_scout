@@ -1,34 +1,10 @@
 import streamlit as st
 from openai import OpenAI
-import PyPDF2
-from PIL import Image
-import pytesseract  # For OCR on images — Streamlit Cloud has it pre-installed
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
-
-def extract_text_from_upload(uploaded_file):
-    """Extract text from TXT, PDF, or image (OCR)"""
-    if not uploaded_file:
-        return ""
-    
-    try:
-        if uploaded_file.type == "text/plain":
-            return uploaded_file.read().decode("utf-8")
-        elif uploaded_file.type == "application/pdf":
-            pdf_reader = PyPDF2.PdfReader(uploaded_file)
-            text = ""
-            for page in pdf_reader.pages:
-                text += page.extract_text() or ""
-            return text
-        elif uploaded_file.type in ["image/png", "image/jpeg"]:
-            image = Image.open(uploaded_file)
-            return pytesseract.image_to_string(image)
-    except:
-        return "[Uploaded file content could not be fully read — Nora will still coordinate based on goals]"
-    return ""
 
 def show():
     # Initialize chat history
@@ -61,7 +37,7 @@ def show():
     # Hero image
     st.image("https://i.postimg.cc/8cQ7n3jK/healthy-food-bowl.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
 
-    st.markdown("### 🥗 HI! I'M NORA – Your Nutrition Coach for Longevity")
+    st.markdown("### 🥗 Hello! I'm Nora – Your Nutrition Coach for Longevity")
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.write("I help you build sustainable, delicious eating habits inspired by Blue Zones and modern science — no fad diets, just food that helps you live better longer.")
 
@@ -104,13 +80,6 @@ def show():
     cooking_time = st.selectbox("TIME AVAILABLE FOR COOKING", ["<20 min/meal", "20–40 min/meal", "40+ min/meal (love cooking)"])
     meals_per_day = st.slider("MEALS PER DAY YOU WANT PLANS FOR", 2, 5, 3)
 
-    # NEW: Greg Upload
-    st.markdown("### Team Up with Greg! (Optional)")
-    st.write("If you've already generated a workout plan with Greg, upload it here — Nora will coordinate nutrition to support your training (recovery, energy, muscle building).")
-    greg_plan_file = st.file_uploader("Upload Greg's workout plan (TXT, PDF, PNG, JPG)", type=["txt", "pdf", "png", "jpg", "jpeg"], key="greg_upload")
-
-    greg_plan_text = extract_text_from_upload(greg_plan_file)
-
     st.markdown("### Refine Your Meal Plan (Optional)")
     st.write("Core plan always includes weekly meal ideas, grocery list, and longevity principles. Add extras:")
     plan_sections = st.multiselect(
@@ -129,7 +98,6 @@ def show():
 
     if st.button("Generate My Custom Meal Plan", type="primary"):
         with st.spinner("Nora is crafting your personalized nutrition plan..."):
-            # Core prompt
             core_prompt = f"""
 ### Weekly Meal Plan
 7-day plan with {meals_per_day} meals/day (breakfast, lunch, dinner + snacks if applicable).
@@ -142,7 +110,6 @@ Organized by category, estimated for 1 person.
 Key habits this plan supports and why they matter.
 """
 
-            # Optional sections
             optional_prompt = ""
             if "Blue Zones Recipe Spotlight" in plan_sections:
                 optional_prompt += "### Blue Zones Recipe Spotlight\n3–5 simple, delicious recipes from longevity hotspots.\n\n"
@@ -159,7 +126,6 @@ Key habits this plan supports and why they matter.
             if "Family-Friendly Adaptations" in plan_sections:
                 optional_prompt += "### Family-Friendly Adaptations\nHow to adjust for kids/partners.\n\n"
 
-            # Full plan for email
             full_plan_prompt = core_prompt + """
 ### Blue Zones Recipe Spotlight
 3–5 recipes.
@@ -177,10 +143,6 @@ Best foods.
 Adjustments.
 """
 
-            greg_context = ""
-            if greg_plan_text:
-                greg_context = f"\nUser has a workout plan from Greg. Coordinate nutrition to support training goals (recovery, energy, muscle building). Key points from Greg's plan: {greg_plan_text[:2000]}..."  # Truncate if too long
-
             base_prompt = f"""
 You are Nora, a warm, evidence-based nutrition coach specializing in longevity eating patterns (Blue Zones, Mediterranean).
 Client profile:
@@ -190,13 +152,12 @@ Preferences: {', '.join(selected_dietary)}
 Allergies: {allergies or 'None'}
 Budget: {budget_level}
 Cooking time: {cooking_time}
-{greg_context}
 
 Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health.
 """
 
             try:
-                # Display plan (core + selected)
+                # Display plan
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
@@ -214,11 +175,9 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 )
                 full_plan = full_response.choices[0].message.content
 
-                # Show customized plan
                 st.success("Nora's custom nutrition plan for you!")
                 st.markdown(display_plan)
 
-                # Store full plan for email
                 st.session_state.full_plan_for_email = full_plan
 
                 st.info("📧 Want the **complete version** with every section? Fill in the email form below to get it instantly!")

@@ -18,27 +18,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Back to Team
-if st.button("← Back to Team"):
-    st.session_state.selected_agent = None
-    st.session_state.chat_history = {}
-    st.rerun()
-
-# Auto-scroll
-st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
-st.markdown("""
-<script>
-    const element = document.getElementById('agent-interaction');
-    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-</script>
-""", unsafe_allow_html=True)
+# Back to home
+st.button("← Back to Team", on_click=lambda: st.switch_page("streamlit_app.py"))
 
 # Hero image
-st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", use_column_width=True, caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
+st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
 
-st.markdown("### 🩺 GREETINGS. I'M NURSE ZOEY ZOE – your friendly nurse assistant.")
-st.write("I provide general wellness education and supportive guidance in simple terms.")
-st.warning("**Important**: Educational purposes only. Not medical advice. Always consult a licensed healthcare professional.")
+st.markdown("### 🩺 GREETINGS. IM NURSE ZOEY ZOE – your friendly nurse assistant, here to support you with compassionate and reliable guidance every step of the way. ")
+st.write("I can help you understand medical conditions, symptoms, treatments, and medications in simple, easy-to-follow terms; offer general advice on managing everyday health concerns like pain relief, wound care, or chronic issues such as diabetes or hypertension; provide tips for wellness, nutrition, exercise, and mental health support; explain procedures or post-care instructions; assist caregivers with practical strategies for supporting loved ones; and always listen with empathy to offer reassurance during stressful times—remember, though, I'm here for information and support, so please consult your healthcare provider for personalized advice or emergencies..")
+st.warning("**Important**: This is for educational purposes only. I do not provide medical diagnoses or treatment. Always consult a licensed healthcare professional.")
 st.write("Upload labs or enter data for general insights, or ask wellness questions.")
 
 uploaded_file = st.file_uploader("Upload labs/health data (PDF, text)", type=["pdf", "txt"])
@@ -57,25 +45,25 @@ if st.button("Get Insights", type="primary"):
                 file_content = "[File uploaded but unreadable]"
         combined = file_content or health_data
         with st.spinner("Nurse Zoey Zoe is reviewing..."):
-            prompt = f"""
-            You are Nurse Zoey Zoe, compassionate nurse providing education only.
+            zoey_prompt = f"""
+            You are Nurse Zoey Zoe, a compassionate nurse providing general wellness education.
             Data: {combined}
-            Question: {question or 'General wellness review'}
-            Respond in markdown:
+            Question: {question or 'General review'}
+            Give educational insights only. Use phrases like "Based on standard guidelines..." Do not diagnose.
+            Structure:
             ### Key Insights
-            - General observations
+            - Bullet points
             ### General Recommendations
             - Lifestyle tips
             ### Next Steps
-            - Recommend professional consultation
-            Never diagnose.
+            - Suggest consulting a professional
             """
             try:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[
                         {"role": "system", "content": "You are Nurse Zoey Zoe, a compassionate nurse."},
-                        {"role": "user", "content": prompt}
+                        {"role": "user", "content": zoey_prompt}
                     ],
                     max_tokens=1000,
                     temperature=0.6
@@ -84,13 +72,13 @@ if st.button("Get Insights", type="primary"):
                 st.success("Nurse Zoey Zoe's insights:")
                 st.markdown(insights)
 
-                # Add insights to chat history so follow-ups remember it
+                # Add insights to chat history for follow-ups
                 if "zoey" not in st.session_state.chat_history:
                     st.session_state.chat_history["zoey"] = []
                 st.session_state.chat_history["zoey"].append({"role": "assistant", "content": f"Here's your wellness insights:\n\n{insights}"})
             except Exception as e:
-                st.error("Try again soon.")
-                st.caption(f"Error: {e}")
+                st.error("Nurse Zoey Zoe is consulting... try again.")
+                st.caption(f"Note: {str(e)}")
 
 # Chat Box
 st.markdown("### Have a follow-up question? Chat with me!")
@@ -124,8 +112,7 @@ if prompt := st.chat_input("Ask Nurse Zoey Zoe a question..."):
             st.session_state.chat_history["zoey"].append({"role": "assistant", "content": reply})
             st.markdown(f"<div class='assistant-message'>{reply}</div>", unsafe_allow_html=True)
         except Exception as e:
-            st.error("Trouble connecting. Try again.")
-            st.caption(f"Error: {e}")
+            st.error("Sorry, I'm having trouble right now. Try again soon.")
 
     st.rerun()
 

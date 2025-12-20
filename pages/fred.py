@@ -22,20 +22,20 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
+    # FORCE SCROLL TO TOP WHEN PAGE LOADS
+    st.markdown("""
+    <script>
+        window.parent.document.querySelector('section.main').scrollTop = 0;
+        window.scrollTo(0, 0);
+    </script>
+    """, unsafe_allow_html=True)
+
     # Back button
     if st.button("← Back to Team"):
         st.session_state.current_page = "home"
         st.rerun()
 
-    # Auto-scroll
-    st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
-    st.markdown("""
-    <script>
-        const element = document.getElementById('agent-interaction');
-        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    </script>
-    """, unsafe_allow_html=True)
-
+    # Hero image
     st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 
     st.markdown("### 🏡 FRED – Your Wellness Home Scout")
@@ -106,7 +106,6 @@ def show():
                     st.success("Fred found your perfect matches! Here's your personalized report:")
                     st.markdown(full_report)
 
-                    # Save to chat history
                     st.session_state.chat_history["fred"].append({"role": "assistant", "content": f"Here's your full wellness home report:\n\n{full_report}"})
 
                     st.markdown("### Get Your Full Report Emailed (Save & Share)")

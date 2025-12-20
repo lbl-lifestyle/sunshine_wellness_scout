@@ -1,10 +1,34 @@
 import streamlit as st
 from openai import OpenAI
+import PyPDF2
+from PIL import Image
+import pytesseract  # For OCR on images — Streamlit Cloud has it pre-installed
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
+
+def extract_text_from_upload(uploaded_file):
+    """Extract text from TXT, PDF, or image (OCR)"""
+    if not uploaded_file:
+        return ""
+    
+    try:
+        if uploaded_file.type == "text/plain":
+            return uploaded_file.read().decode("utf-8")
+        elif uploaded_file.type == "application/pdf":
+            pdf_reader = PyPDF2.PdfReader(uploaded_file)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() or ""
+            return text
+        elif uploaded_file.type in ["image/png", "image/jpeg"]:
+            image = Image.open(uploaded_file)
+            return pytesseract.image_to_string(image)
+    except:
+        return "[Uploaded file content could not be fully read — Nora will still coordinate based on goals]"
+    return ""
 
 def show():
     # Initialize chat history
@@ -34,15 +58,15 @@ def show():
         st.session_state.current_page = "home"
         st.rerun()
 
-    # Hero image (nutrition-themed)
+    # Hero image
     st.image("https://i.postimg.cc/8cQ7n3jK/healthy-food-bowl.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
 
     st.markdown("### 🥗 HI! I'M NORA – Your Nutrition Coach for Longevity")
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.write("I help you build sustainable, delicious eating habits inspired by Blue Zones and modern science — no fad diets, just food that helps you live better longer.")
 
-    # DISCLAIMER
-    st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions, allergies, or are on medication.")
+    # Disclaimer
+    st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
 
     # Encouraging input
     st.markdown("### Tell Nora a little bit about you and your eating habits")
@@ -51,11 +75,41 @@ def show():
 
     age = st.slider("Your age", 18, 80, 45)
     goals = st.multiselect("PRIMARY NUTRITION GOALS", ["Longevity/anti-aging", "Energy & vitality", "Heart health", "Weight management", "Gut health", "Brain health", "Muscle maintenance", "General wellness"])
-    dietary_preferences = st.multiselect("DIETARY PREFERENCES", ["Mediterranean", "Plant-based", "Omnivore", "Pescatarian", "Keto", "Low-carb", "No restrictions"])
+    
+    # Dietary preferences with tooltips
+    dietary_options = [
+        ("Mediterranean", "Rich in fruits, veggies, olive oil, fish, nuts. Proven for heart health & longevity (Blue Zones favorite)."),
+        ("Plant-based", "Mostly or fully plants — great for inflammation, fiber, environment. May need B12/vitamin planning."),
+        ("Omnivore", "Balanced everything-in-moderation approach — flexible and sustainable for most."),
+        ("Pescatarian", "Vegetarian + fish — excellent omega-3s for brain/heart, easy transition from omnivore."),
+        ("Keto", "Very low-carb, high-fat — can help weight loss & blood sugar, but long-term data limited for longevity."),
+        ("Low-carb", "Moderate carb reduction — good for energy stability, less extreme than keto."),
+        ("No restrictions", "Open to all foods — Nora will focus on balance and quality.")
+    ]
+
+    dietary_tooltips = {opt[0]: opt[1] for opt in dietary_options}
+    selected_dietary = st.multiselect(
+        "DIETARY PREFERENCES (hover for details)",
+        options=[opt[0] for opt in dietary_options],
+        default=["Mediterranean"],
+        help="Hover over options for benefits & considerations"
+    )
+
+    if selected_dietary:
+        for diet in selected_dietary:
+            st.caption(f"**{diet}**: {dietary_tooltips[diet]}")
+
     allergies = st.text_area("ALLERGIES OR INTOLERANCES? (optional)", placeholder="Example: Gluten intolerant, lactose sensitive, nut allergy")
     budget_level = st.selectbox("WEEKLY GROCERY BUDGET LEVEL", ["Budget-conscious", "Moderate", "Premium/organic focus"])
     cooking_time = st.selectbox("TIME AVAILABLE FOR COOKING", ["<20 min/meal", "20–40 min/meal", "40+ min/meal (love cooking)"])
     meals_per_day = st.slider("MEALS PER DAY YOU WANT PLANS FOR", 2, 5, 3)
+
+    # NEW: Greg Upload
+    st.markdown("### Team Up with Greg! (Optional)")
+    st.write("If you've already generated a workout plan with Greg, upload it here — Nora will coordinate nutrition to support your training (recovery, energy, muscle building).")
+    greg_plan_file = st.file_uploader("Upload Greg's workout plan (TXT, PDF, PNG, JPG)", type=["txt", "pdf", "png", "jpg", "jpeg"], key="greg_upload")
+
+    greg_plan_text = extract_text_from_upload(greg_plan_file)
 
     st.markdown("### Refine Your Meal Plan (Optional)")
     st.write("Core plan always includes weekly meal ideas, grocery list, and longevity principles. Add extras:")
@@ -123,15 +177,20 @@ Best foods.
 Adjustments.
 """
 
+            greg_context = ""
+            if greg_plan_text:
+                greg_context = f"\nUser has a workout plan from Greg. Coordinate nutrition to support training goals (recovery, energy, muscle building). Key points from Greg's plan: {greg_plan_text[:2000]}..."  # Truncate if too long
+
             base_prompt = f"""
 You are Nora, a warm, evidence-based nutrition coach specializing in longevity eating patterns (Blue Zones, Mediterranean).
 Client profile:
 Age: {age}
 Goals: {', '.join(goals)}
-Preferences: {', '.join(dietary_preferences)}
+Preferences: {', '.join(selected_dietary)}
 Allergies: {allergies or 'None'}
 Budget: {budget_level}
 Cooking time: {cooking_time}
+{greg_context}
 
 Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health.
 """

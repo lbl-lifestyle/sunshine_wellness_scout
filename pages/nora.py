@@ -95,8 +95,7 @@ def show():
 
     
     dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
-    st.markdown('</div>', unsafe_allow_html=True)
-
+    
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     allergies = st.text_area("ALLERGIES OR INTOLERANCES? (optional)", placeholder="Example: Gluten intolerant, lactose sensitive, nut allergy")

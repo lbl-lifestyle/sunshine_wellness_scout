@@ -1,59 +1,75 @@
 import streamlit as st
 
-# CSS
-st.markdown("""
-<style>
-    .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }
-    .main-header { font-size: 3.5rem; color: #ea580c; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); font-weight: bold; }
-    .tagline { font-size: 2rem; color: #166534; text-align: center; font-style: italic; margin-bottom: 2rem; }
-    .motivation-header { font-size: 2rem; color: #ea580c; text-align: center; font-weight: bold; margin: 2rem 0 1rem 0; }
-    .motivation-text { text-align: center; font-size: 1.4rem; line-height: 1.9; margin: 2rem 0 3rem 0; color: #0c4a6e; max-width: 900px; margin-left: auto; margin-right: auto; }
-    .agent-name { font-weight: bold; font-size: 1.8rem; color: #ea580c; margin-bottom: 1rem; }
-    .agent-desc { min-height: 110px; font-size: 1.1rem; line-height: 1.6; margin: 1rem 0; }
-    .stButton>button { background-color: #ea580c; color: white; border-radius: 15px; font-weight: bold; font-size: 1.2rem; height: 4em; width: 100%; }
-</style>
-""", unsafe_allow_html=True)
+# ============================
+# SESSION STATE INITIALIZATION
+# ============================
 
-st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
-st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = {
+        "fred": [],
+        "greg": [],
+        "zoey": []
+    }
 
-st.image("https://i.postimg.cc/tgsgw1dW/image.jpg", caption="Your Longevity Blueprint")
+if "current_page" not in st.session_state:
+    st.session_state.current_page = "home"
 
-st.markdown("<h2 class='motivation-header'>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
-st.markdown("""
-<div class='motivation-text'>
-1. **Choose Your Agent** – Click one of the team members below to get started.<br><br>
-2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
-3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>
-Ready to live better longer? 👇 Pick an agent below!
-</div>
-""", unsafe_allow_html=True)
+# Optional: Helpful for debugging or future expansions
+if "api_key_set" not in st.session_state:
+    st.session_state.api_key_set = False
 
-st.markdown("### MEET THE LIFESTYLE TEAM")
-st.markdown("<p style='text-align:center; color:#0c4a6e; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
+# =====================
+# PAGE NAVIGATION LOGIC
+# =====================
 
-cols = st.columns(3)
+# Function to switch pages safely
+def navigate_to(page: str):
+    st.session_state.current_page = page
+    st.rerun()
 
-with cols[0]:
-    st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
-    st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR WELLNESS HOME SCOUT* <br>A goal-focused realtor. Let's start by generating a detailed report of home options that match your lifestyle needs — anywhere in the U.S.!</div>", unsafe_allow_html=True)
-    if st.button("Talk to Fred →", key="fred"):
-        st.switch_page("pages/fred.py")
+# Determine which page to show
+page = st.session_state.current_page
 
-with cols[1]:
-    st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
-    st.image("https://i.postimg.cc/yxf3Szvc/pexels-andres-ayrton-6551079.jpg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR PERSONAL TRAINER* <br>A motivated lifestyle coach. Let's start with a workout routine tailored to your fitness goals and health needs to Live Better Longer.</div>", unsafe_allow_html=True)
-    if st.button("Talk to Greg →", key="greg"):
-        st.switch_page("pages/greg.py")
+# =====================
+# HOME PAGE (Main Welcome)
+# =====================
 
-with cols[2]:
-    st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
-    st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=200)
-    st.markdown("<div class='agent-desc'>*YOUR HEALTH ASSESSOR* <br>A compassionate wellness guide. Ask Zoey any health question. She can help you develop a proactive health lifestyle.</div>", unsafe_allow_html=True)
-    if st.button("Talk to Nurse Zoey Zoe →", key="zoey"):
-        st.switch_page("pages/nurse_zoey_zoe.py")
+if page == "home":
+    st.title("🌟 Welcome to LBL Lifestyle Solutions")
+    st.markdown("""
+    Get personalized guidance from our expert team.  
+    Click on an advisor below to start chatting!
+    """)
 
-st.markdown("---")
-st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        if st.button("🛋️ Talk to Fred\nWellness Home Scout", use_container_width=True):
+            navigate_to("fred")
+
+    with col2:
+        if st.button("💪 Talk to Greg\nFitness Coach", use_container_width=True):
+            navigate_to("greg")
+
+    with col3:
+        if st.button("🩺 Talk to Nurse Zoey Zoe\nHealth Advisor", use_container_width=True):
+            navigate_to("zoey")
+
+# =====================
+# AGENT PAGES (Imported)
+# =====================
+
+elif page == "fred":
+    import pages.fred as fred_page
+    fred_page.show()  # We'll define a show() function in each page
+
+elif page == "greg":
+    import pages.greg as greg_page
+    greg_page.show()
+
+elif page == "zoey":
+    import pages.zoey as zoey_page
+    zoey_page.show()
+
+else:
+    st.error("Page not found!")

@@ -77,12 +77,46 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"fred": []}
 
-    # CSS
+    # NEW PROFESSIONAL DESIGN
     st.markdown("""
     <style>
-        .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }
-        .stButton>button { background-color: #ea580c; color: white; border-radius: 15px; font-weight: bold; font-size: 1.2rem; height: 4em; width: 100%; }
-        img { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 20px 0; max-width: 100%; height: auto; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
+        
+        .stApp {
+            background: linear-gradient(to bottom, #f8f9fa, #e6f0fa);
+            color: #1e3a2f;
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2d6a4f;
+            font-weight: 600;
+        }
+        .stButton>button {
+            background-color: #2d6a4f;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            height: 3.5em;
+            border: none;
+            box-shadow: 0 4px 8px rgba(45, 106, 79, 0.2);
+        }
+        .stButton>button:hover {
+            background-color: #40916c;
+        }
+        .stSuccess, .stInfo {
+            background-color: #d8f0e6;
+            border-left: 5px solid #40916c;
+        }
+        .stWarning {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+        img {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -108,7 +142,6 @@ def show():
     st.markdown("### 🏡 Hello! I'm Fred – Your Wellness Home Scout")
     st.write("I'm here to help you find or create a home environment that actively supports your health, recovery, and longevity — anywhere in the U.S.")
     st.warning("**Important**: I am not a licensed real estate agent. My recommendations are general wellness education based on research and trends. Always consult a licensed professional for real estate decisions.")
-
     st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
 
     # Encouraging input
@@ -157,7 +190,6 @@ def show():
             st.warning("Please share your story above so Fred can create the best report for you!")
         else:
             with st.spinner("Fred is crafting your personalized report..."):
-                # Core sections
                 core_prompt = """
 ### Introduction
 5-6 sentences introducing how well their needs match the area and budget.
@@ -171,7 +203,6 @@ def show():
 # (repeat for 2-5)
 """
 
-                # Optional sections
                 optional_prompt = ""
                 if "Wellness/Outdoor Highlights" in report_sections:
                     optional_prompt += "### Wellness/Outdoor Highlights\n6-10 sentences covering key trails, parks, etc.\n\n"
@@ -192,7 +223,6 @@ def show():
                 if "Top Property Recommendations" in report_sections:
                     optional_prompt += "### Top Property Recommendations\n1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).\n\n"
 
-                # Full report for email
                 full_report_prompt = core_prompt + """
 ### Wellness/Outdoor Highlights
 6-10 sentences.
@@ -226,7 +256,7 @@ Example day.
                 """
 
                 try:
-                    # Display report (core + selected)
+                    # Display report
                     display_response = client.chat.completions.create(
                         model=MODEL_NAME,
                         messages=[{"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
@@ -248,11 +278,9 @@ Example day.
                     display_report_with_images = add_images_to_report(display_report, location_hint, client_needs)
                     full_report_with_images = add_images_to_report(full_report, location_hint, client_needs)
 
-                    # Show only customized report
                     st.success("Fred found your perfect matches! Here's your personalized report:")
                     st.markdown(display_report_with_images)
 
-                    # Store full for email
                     st.session_state.full_report_for_email = full_report_with_images
 
                     st.info("📧 Want the **complete version** with every section? Fill in the email form below!")

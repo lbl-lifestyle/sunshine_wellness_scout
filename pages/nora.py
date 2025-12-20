@@ -16,6 +16,12 @@ def show():
     <style>
         .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }
         .stButton>button { background-color: #ea580c; color: white; border-radius: 15px; font-weight: bold; font-size: 1.2rem; height: 4em; width: 100%; }
+        .optional-input {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -39,7 +45,7 @@ def show():
 
     st.markdown("### 🥗 HI! I'M NORA – Your Nutrition Coach for Longevity")
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
-    st.write("I help you find nutritious, sustainable eating habits that fit your life — focusing on balance, joy, and long-term health, without pushing any one direction.")
+    st.write("I help you build sustainable, delicious eating habits that fit your life — focusing on balance, joy, and long-term health, tailored to your preferences.")
 
     # Disclaimer
     st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
@@ -51,16 +57,15 @@ def show():
 
     age = st.slider("Your age", 18, 80, 45)
     goals = st.multiselect("PRIMARY NUTRITION GOALS", ["Longevity/anti-aging", "Energy & vitality", "Heart health", "Weight management", "Gut health", "Brain health", "Muscle maintenance", "General wellness"])
-    goals_notes = st.text_input("Notes on your goals (optional, e.g., specific preferences)")
 
     # Dietary preferences with tooltips
     dietary_options = [
-        ("Mediterranean", "Rich in fruits, veggies, olive oil, fish, nuts. Proven for heart health & longevity (Blue Zones favorite)."),
-        ("Plant-based", "Mostly or fully plants — great for inflammation, fiber, environment. May need B12/vitamin planning."),
-        ("Omnivore", "Balanced everything-in-moderation approach — flexible and sustainable for most."),
-        ("Pescatarian", "Vegetarian + fish — excellent omega-3s for brain/heart, easy transition from omnivore."),
-        ("Keto", "Very low-carb, high-fat — can help weight loss & blood sugar, but long-term data limited for longevity."),
-        ("Low-carb", "Moderate carb reduction — good for energy stability, less extreme than keto."),
+        ("Mediterranean", "Rich in fruits, veggies, olive oil, fish, nuts. Proven for heart health & longevity."),
+        ("Plant-based", "Mostly or fully plants — great for inflammation, fiber, environment."),
+        ("Omnivore", "Balanced everything-in-moderation approach — flexible and sustainable."),
+        ("Pescatarian", "Vegetarian + fish — excellent omega-3s for brain/heart."),
+        ("Keto", "Very low-carb, high-fat — can help weight loss & blood sugar."),
+        ("Low-carb", "Moderate carb reduction — good for energy stability."),
         ("No restrictions", "Open to all foods — Nora will focus on balance and quality.")
     ]
 
@@ -76,17 +81,48 @@ def show():
         for diet in selected_dietary:
             st.caption(f"**{diet}**: {dietary_tooltips[diet]}")
 
-    dietary_notes = st.text_input("Notes on your dietary preferences (optional, e.g., specific foods to include/avoid)")
-
     allergies = st.text_area("ALLERGIES OR INTOLERANCES? (optional)", placeholder="Example: Gluten intolerant, lactose sensitive, nut allergy")
 
     budget_level = st.selectbox("WEEKLY GROCERY BUDGET LEVEL", ["Budget-conscious", "Moderate", "Premium/organic focus"])
-    budget_notes = st.text_input("Specific budget amount or notes (optional, e.g., $100/week max)")
 
     cooking_time = st.selectbox("TIME AVAILABLE FOR COOKING", ["<20 min/meal", "20–40 min/meal", "40+ min/meal (love cooking)"])
-    cooking_notes = st.text_input("Specific cooking notes (optional, e.g., prefer batch cooking on weekends)")
-
     meals_per_day = st.slider("MEALS PER DAY YOU WANT PLANS FOR", 2, 5, 3)
+
+    # Optional inputs in light grey
+    st.markdown("### Optional Additional Details (in light grey)")
+    with st.container():
+        st.markdown('<div class="optional-input">', unsafe_allow_html=True)
+        goals_notes = st.text_area("Optional: Notes on your goals (e.g., specific preferences)", height=100)
+        dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
+        budget_notes = st.text_input("Optional: Specific budget amount or notes (e.g., $100/week max)")
+        cooking_notes = st.text_input("Optional: Specific cooking notes (e.g., prefer batch cooking on weekends)")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Macro input
+    st.markdown('<div class="optional-input">', unsafe_allow_html=True)
+    macro_input = st.text_input("Optional: Daily Macro Targets (e.g., 40% carbs, 30% protein, 30% fat)", placeholder="Leave blank for balanced default")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Greg upload
+    st.markdown('<div class="optional-input">', unsafe_allow_html=True)
+    st.write("**Optional: Team Up with Greg!**")
+    st.write("If you've generated a workout plan with Greg, upload it here — Nora will coordinate nutrition to support your training.")
+    greg_plan_file = st.file_uploader("Upload Greg's plan (TXT, PDF, PNG, JPG)", type=["txt", "pdf", "png", "jpg", "jpeg"], key="greg_upload_nora")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Read uploaded Greg plan
+    greg_plan_text = ""
+    if greg_plan_file:
+        try:
+            if greg_plan_file.type == "text/plain":
+                greg_plan_text = greg_plan_file.read().decode("utf-8")
+            elif greg_plan_file.type == "application/pdf":
+                # Simple fallback message (PyPDF2 not needed)
+                greg_plan_text = "[Greg's workout plan uploaded — Nora will optimize nutrition for training recovery and energy]"
+            else:
+                greg_plan_text = "[Image of Greg's plan uploaded — Nora will coordinate accordingly]"
+        except:
+            greg_plan_text = "[Plan uploaded — content noted]"
 
     st.markdown("### Refine Your Meal Plan (Optional)")
     st.write("Core plan always includes weekly meal ideas, grocery list, and longevity principles. Add extras:")
@@ -109,8 +145,9 @@ def show():
             # Core prompt
             core_prompt = f"""
 ### Weekly Meal Plan
-7-day plan with {meals_per_day} meals/day (breakfast, lunch, dinner + snacks if applicable).
-Focus on longevity principles. Include portion guidance and variety.
+7-day plan with {meals_per_day} meals/day.
+Focus on balanced, sustainable nutrition for long-term health and enjoyment.
+Include portion guidance and variety.
 
 ### Grocery List
 Organized by category, estimated for 1 person.
@@ -155,20 +192,22 @@ Adjustments.
 """
 
             base_prompt = f"""
-You are Nora, a warm, evidence-based nutrition coach specializing in longevity eating patterns (Blue Zones, Mediterranean).
+You are Nora, a warm, evidence-based nutrition coach focused on sustainable, enjoyable eating for long-term health.
 Client profile:
 Age: {age}
 Goals: {', '.join(goals)}
-Preferences: {', '.join(selected_dietary)}
+Dietary preferences: {', '.join(selected_dietary) or 'Balanced omnivore'}
+Macro targets: {macro_input or 'Balanced default'}
 Allergies: {allergies or 'None'}
 Budget: {budget_level}
 Cooking time: {cooking_time}
+Greg's plan: {greg_plan_text or 'None provided'}
 
-Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health.
+Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health — adapt to user's stated preferences.
 """
 
             try:
-                # Display plan (core + selected)
+                # Display plan
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],

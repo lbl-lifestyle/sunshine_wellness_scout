@@ -1,3 +1,6 @@
 streamlit>=1.32.0
 openai
 requests
+PyPDF2==3.0.1
+pytesseract==0.3.10
+Pillow==10.3.0  # For image handling (PIL)

@@ -23,23 +23,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Back to Team
-if st.button("← Back to Team"):
-    st.session_state.selected_agent = None
-    st.session_state.chat_history = {}
-    st.rerun()
-
-# Auto-scroll to hero image
-st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
-st.markdown("""
-<script>
-    const element = document.getElementById('agent-interaction');
-    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-</script>
-""", unsafe_allow_html=True)
+# Back to home
+st.button("← Back to Team", on_click=lambda: st.switch_page("streamlit_app.py"))
 
 # Hero image
-st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", use_column_width=True, caption="Your Keys Await – Welcome to your longevity lifestyle")
+st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 
 st.markdown("### 🏡 FRED – Your Wellness Home Scout")
 st.success("**This tool is completely free – no cost, no obligation! You will receive the full personalized report below and via email.**")
@@ -119,7 +107,7 @@ if st.button("🔍 GENERATE MY REPORT", type="primary"):
                     name = st.text_input("Your Name")
                     email = st.text_input("Email (required)", placeholder="you@example.com")
                     phone = st.text_input("Phone (optional)")
-                    submitted = st.form_submit_button("📧 Send My Full Report", key="send_report_form")
+                    submitted = st.form_submit_button("📧 Send My Full Report")
                     if submitted:
                         st.write("Sending your report...")
                         if not email:
@@ -152,20 +140,12 @@ Fred & the LBL Team
                             try:
                                 response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                                 if response.status_code == 200:
-                                    st.session_state.email_status = "success"
-                                    st.session_state.email_message = f"Full report sent to {email}! Check your inbox."
+                                    st.success(f"Full report sent to {email}! Check your inbox.")
+                                    st.balloons()
                                 else:
-                                    st.session_state.email_status = "error"
-                                    st.session_state.email_message = f"Send failed: {response.text} (Status: {response.status_code})"
+                                    st.error(f"Send failed: {response.text} (Status: {response.status_code})")
                             except Exception as e:
-                                st.session_state.email_status = "error"
-                                st.session_state.email_message = f"Send error: {str(e)}"
-
-                if st.session_state.email_status == "success":
-                    st.success(st.session_state.email_message)
-                    st.balloons()
-                elif st.session_state.email_status == "error":
-                    st.error(st.session_state.email_message)
+                                st.error(f"Send error: {str(e)}")
             except Exception as e:
                 st.error("Fred is reviewing listings... try again soon.")
                 st.caption(f"Note: {str(e)}")

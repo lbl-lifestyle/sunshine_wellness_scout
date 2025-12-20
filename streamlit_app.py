@@ -1,8 +1,9 @@
 import streamlit as st
 
-# ============================
-# SESSION STATE INITIALIZATION
-# ============================
+# ===================================================
+# CRITICAL: INITIALIZE SESSION STATE FIRST THING
+# This MUST be at the very top — nothing above it except the import
+# ===================================================
 
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = {
@@ -14,19 +15,21 @@ if "chat_history" not in st.session_state:
 if "current_page" not in st.session_state:
     st.session_state.current_page = "home"
 
-# =====================
-# NAVIGATION FUNCTION
-# =====================
+# ===================================================
+# NAVIGATION HELPER
+# ===================================================
 
 def navigate_to(page: str):
     st.session_state.current_page = page
     st.rerun()
 
-# =====================
-# HOME PAGE
-# =====================
+# ===================================================
+# PAGE ROUTING
+# ===================================================
 
-if st.session_state.current_page == "home":
+page = st.session_state.current_page
+
+if page == "home":
     st.markdown("""
     <h1 style='text-align: center; color: #2E8B57;'>🌟 LBL Lifestyle Solutions</h1>
     <p style='text-align: center; font-size: 1.2rem;'>
@@ -74,3 +77,18 @@ if st.session_state.current_page == "home":
 
     st.markdown("---")
     st.caption("Powered by Grok 4.1 Fast Reasoning • Built for lifelong wellness in the Sunshine State ☀️")
+
+elif page == "fred":
+    import pages.fred as fred_page
+    fred_page.show()
+
+elif page == "greg":
+    import pages.greg as greg_page
+    greg_page.show()
+
+elif page == "zoey":
+    import pages.zoey as zoey_page
+    zoey_page.show()
+
+else:
+    st.error("Unknown page!")

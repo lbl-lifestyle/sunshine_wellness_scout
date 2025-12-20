@@ -37,10 +37,12 @@ def show():
     # Hero image
     st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
 
-    st.markdown("### 🩺 GREETINGS. I'M NURSE ZOEY ZOE – your friendly nurse assistant")
-    st.success("**This tool is for educational purposes only. Your full insights will be emailed if requested.**")
-    st.write("I can help you understand symptoms, wellness habits, preventive care, and when to see a doctor. Always consult a licensed healthcare professional for personal advice.")
-    st.warning("**Important**: I do not diagnose or prescribe. This is general education only.")
+    st.markdown("### 🩺 Hello! I'm Nurse Zoey Zoe – your friendly health educator")
+    st.success("**This tool is completely free – no cost, no obligation! Your full insights will be emailed if requested.**")
+    st.write("I provide general wellness education and help you understand symptoms, labs, and preventive habits — all to support your longevity journey.")
+
+    # Disclaimer
+    st.warning("**Important**: I am not a doctor and do not provide medical diagnoses, treatments, or prescriptions. This is general education only. Always consult a licensed healthcare professional for personal medical advice.")
 
     # Encouraging input
     st.markdown("### Tell Zoey about your health questions or data")
@@ -75,29 +77,18 @@ def show():
                 file_content = ""
                 if uploaded_file:
                     try:
-                        if uploaded_file.type == "application/pdf":
-                            # Simple text extraction for PDF (limited)
-                            file_content = "[PDF uploaded — text extraction limited]"
-                        else:
-                            file_content = uploaded_file.read().decode("utf-8", errors="ignore")
+                        file_content = uploaded_file.read().decode("utf-8", errors="ignore")
                     except:
-                        file_content = "[File uploaded but unreadable]"
-
-                combined_input = file_content or health_data
-
-                # Core prompt
+                        file_content = "[File uploaded — content partially read]"
+                combined = file_content or health_data
                 core_prompt = """
 ### Key Insights
 Bullet points summarizing general educational observations from the data/question.
-
 ### General Recommendations
 Evidence-based lifestyle suggestions.
-
 ### Next Steps
 When to consult a professional and what to discuss.
 """
-
-                # Optional sections
                 optional_prompt = ""
                 if "Sleep Optimization Tips" in insight_sections:
                     optional_prompt += "### Sleep Optimization Tips\nPractical habits for better rest and recovery.\n\n"
@@ -113,43 +104,31 @@ When to consult a professional and what to discuss.
                     optional_prompt += "### Supplement Education (general)\nCommon options and evidence overview — consult doctor before starting.\n\n"
                 if "When to See a Doctor" in insight_sections:
                     optional_prompt += "### When to See a Doctor\nRed flags and urgency guidance.\n\n"
-
-                # Full insights for email
                 full_insights_prompt = core_prompt + """
 ### Sleep Optimization Tips
 Practical habits.
-
 ### Stress Management Strategies
 Daily techniques.
-
 ### Nutrition for Longevity
 Food choices.
-
 ### Exercise Recommendations
 Movement ideas.
-
 ### Preventive Screening Guidelines
 Recommended tests.
-
 ### Supplement Education (general)
 Overview — consult doctor.
-
 ### When to See a Doctor
 Red flags.
 """
-
                 base_prompt = f"""
 You are Nurse Zoey Zoe, a compassionate, evidence-based registered nurse and health educator.
-Data/Question: {combined_input or 'General wellness inquiry'}
+Data/Question: {combined or 'General wellness inquiry'}
 Specific question: {question or 'Overall health insights'}
-
-Provide general education only. Never diagnose, prescribe, or give medical advice.
+Provide general education only. Never diagnose or prescribe.
 Use phrases like "Generally speaking..." or "Standard guidelines suggest...".
-Structure exactly as requested.
 """
-
                 try:
-                    # Display insights (core + selected)
+                    # Display insights
                     display_response = client.chat.completions.create(
                         model=MODEL_NAME,
                         messages=[{"role": "system", "content": "You are Nurse Zoey Zoe, compassionate health educator."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
@@ -167,11 +146,9 @@ Structure exactly as requested.
                     )
                     full_insights = full_response.choices[0].message.content
 
-                    # Show customized insights
                     st.success("Nurse Zoey Zoe's insights:")
                     st.markdown(display_insights)
 
-                    # Store full for email
                     st.session_state.full_insights_for_email = full_insights
 
                     st.info("📧 Want the **complete version** with every section? Fill in the email form below!")

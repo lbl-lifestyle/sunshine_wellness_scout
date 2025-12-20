@@ -15,10 +15,8 @@ def fetch_pexels_image(neighborhood="", location_hint="", theme_hints=""):
     """Smart fallback: neighborhood → city/state → theme"""
     if not PEXELS_API_KEY:
         return None
-
     headers = {"Authorization": PEXELS_API_KEY}
     url = "https://api.pexels.com/v1/search"
-
     queries = []
     if neighborhood and location_hint:
         queries.append(f"{neighborhood} {location_hint} neighborhood homes landscape nature aerial view")
@@ -30,7 +28,6 @@ def fetch_pexels_image(neighborhood="", location_hint="", theme_hints=""):
     if theme_hints:
         queries.append(f"{location_hint or 'USA'} {theme_hints} landscape nature")
     queries.append("wellness home nature landscape sunset")
-
     seen_urls = set()
     for query in queries:
         params = {"query": query, "per_page": 3, "orientation": "landscape"}
@@ -53,7 +50,6 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
     enhanced_lines = []
     in_top_5 = False
     seen_urls = set()
-
     lower_needs = client_needs.lower()
     theme_hints = ""
     if any(word in lower_needs for word in ["beach", "ocean", "tampa", "florida", "coast"]):
@@ -62,13 +58,10 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
         theme_hints = "mountains cabins forest autumn nature scenic"
     elif any(word in lower_needs for word in ["lake", "waterfront"]):
         theme_hints = "lake waterfront homes nature"
-
     for line in lines:
         enhanced_lines.append(line)
-
         if "Top 5 Neighborhoods" in line or "Top 5 Suburbs" in line:
             in_top_5 = True
-
         if in_top_5 and line.strip().startswith(('1.', '2.', '3.', '4.', '5.')):
             parts = line.split('-', 1)
             if len(parts) > 1:
@@ -79,10 +72,13 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
                     enhanced_lines.append(f"![{name_part} – Beautiful homes and scenery]({img_url})")
                     enhanced_lines.append("")
                     seen_urls.add(img_url)
-
     return '\n'.join(enhanced_lines)
 
 def show():
+    # Initialize session state for chat history if not exists
+    if "chat_history" not in st.session_state:
+        st.session_state.chat_history = {"fred": []}
+
     # CSS
     st.markdown("""
     <style>
@@ -111,7 +107,7 @@ def show():
     st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 
     st.markdown("### 🏡 FRED – Your Wellness Home Scout")
-    st.success("**This tool is completely free – no cost, no obligation! You will receive the full personalized report below and via email.**")
+    st.success("**This tool is completely free – no cost, no obligation! You will receive your personalized report below and a complete version via email if you request it.**")
     st.write("The perfect home that supports your lifestyle awaits — anywhere in the U.S.!")
 
     # Encouraging input
@@ -164,16 +160,13 @@ def show():
                 core_prompt = """
 ### Introduction
 5-6 sentences introducing how well their needs match the area and budget.
-
 ### Top 5 Neighborhoods/Suburbs and Why They Fit
 1. [Neighborhood Name Here] - [Detailed explanation... 5-8 sentences.] [Fun facts: weather trends, cost of living, safety, commute/transportation, healthcare, culture/lifestyle, and overall vibe. 3-5 sentences.]
 # (repeat for 2-5)
-
 ### Top 5 Must-Have Home Features
 1. [Feature Name Here] - [In-depth reason... 5-8 sentences.]
 # (repeat for 2-5)
 """
-
                 # Optional sections (only if selected)
                 optional_prompt = ""
                 if "Wellness/Outdoor Highlights" in report_sections:
@@ -195,35 +188,24 @@ def show():
                 if "Top Property Recommendations" in report_sections:
                     optional_prompt += "### Top Property Recommendations\n1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).\n\n"
 
-                # Full report prompt (core + optional) — used for display
-                display_prompt = core_prompt + optional_prompt
-
-                # Complete full report prompt (all possible sections) — used for email
+                # Full report prompt (all possible sections) — used only for email
                 full_report_prompt = core_prompt + """
 ### Wellness/Outdoor Highlights
 6-10 sentences covering key trails, parks, etc.
-
 ### Cost of Living & Financial Breakdown
 Detailed comparison of monthly expenses, property taxes, and affordability for longevity planning (6-8 sentences).
-
 ### Healthcare Access & Longevity Metrics
 Top hospitals, specialists, life expectancy, air quality, and wellness infrastructure (5-7 sentences).
-
 ### Community & Social Wellness
 Local groups, events, and opportunities for connection and belonging (5-7 sentences).
-
 ### Climate & Seasonal Wellness Tips
 Year-round activity potential, weather patterns, and tips for thriving in all seasons (5-7 sentences).
-
 ### Transportation & Daily Convenience
 Walkability, transit, and ease of daily errands for an active lifestyle (4-6 sentences).
-
 ### Future-Proofing for Aging in Place
 Availability of accessible homes and long-term livability features (4-6 sentences).
-
 ### Sample Daily Wellness Routine in This Area
 An inspiring example day tailored to the recommended locations (6-8 sentences).
-
 ### Top Property Recommendations
 1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).
 """
@@ -233,9 +215,7 @@ An inspiring example day tailored to the recommended locations (6-8 sentences).
                 {client_needs}
                 Budget: ${budget:,}
                 Preferred location(s): {location or 'wellness-friendly areas across the U.S.'}
-
                 You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States.
-
                 Use warm, encouraging, insightful language.
                 """
 
@@ -245,14 +225,14 @@ An inspiring example day tailored to the recommended locations (6-8 sentences).
                         model=MODEL_NAME,
                         messages=[
                             {"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor."},
-                            {"role": "user", "content": base_prompt + "\n" + display_prompt}
+                            {"role": "user", "content": base_prompt + "\n" + (core_prompt + optional_prompt)}
                         ],
                         max_tokens=3000,
                         temperature=0.7
                     )
                     display_report = display_response.choices[0].message.content
 
-                    # Generate full report (all sections) for email
+                    # Generate full report (all sections) for email only
                     full_response = client.chat.completions.create(
                         model=MODEL_NAME,
                         messages=[
@@ -264,19 +244,20 @@ An inspiring example day tailored to the recommended locations (6-8 sentences).
                     )
                     full_report = full_response.choices[0].message.content
 
-                    # Add photos to both
+                    # Add photos to both reports
                     display_report_with_images = add_images_to_report(display_report, location_hint, client_needs)
                     full_report_with_images = add_images_to_report(full_report, location_hint, client_needs)
 
-                    # Show only the selected report on screen
+                    # Display only the customized report on screen
                     st.success("Fred found your perfect matches! Here's your personalized report:")
                     st.markdown(display_report_with_images)
 
-                    # Save full report for email
+                    # Store the full report for email (hidden from UI)
                     st.session_state.full_report_for_email = full_report_with_images
 
-                    # Add display report to chat history
-                    st.session_state.chat_history["fred"].append({"role": "assistant", "content": f"Here's your personalized report:\n\n{display_report_with_images}"})
+                    # OPTIONAL: Add a helpful note
+                    st.info("📧 Want the **complete version** with every possible section? Fill in the email form below to have it sent instantly!")
+
                 except Exception as e:
                     st.error("Fred is reviewing listings... try again soon.")
                     st.caption(f"Error: {str(e)}")
@@ -326,20 +307,24 @@ Fred & the LBL Team"""
                     except Exception as e:
                         st.error(f"Send error: {str(e)}")
 
-    # Streamlined chat
-    st.markdown("### Have a follow-up question? Start a chat with me in the Ask Fred banner below!")
+    # Streamlined follow-up chat (only for actual questions)
+    st.markdown("### Have a follow-up question? Chat with Fred below!")
+    st.caption("Ask anything to refine your search, explore a neighborhood, or get more details.")
 
+    # Display chat history (only real conversation, not the report)
     for msg in st.session_state.chat_history["fred"]:
         if msg["role"] == "user":
-            st.markdown(f"<div class='user-message'>{msg['content']}</div>", unsafe_allow_html=True)
+            st.chat_message("user").write(msg["content"])
         else:
-            st.markdown(f"<div class='assistant-message'>{msg['content']}</div>", unsafe_allow_html=True)
+            st.chat_message("assistant").write(msg["content"])
 
+    # Chat input
     if prompt := st.chat_input("Ask Fred a question..."):
+        # Add user message
         st.session_state.chat_history["fred"].append({"role": "user", "content": prompt})
-        st.markdown(f"<div class='user-message'>{prompt}</div>", unsafe_allow_html=True)
+        st.chat_message("user").write(prompt)
 
-        with st.spinner("Thinking..."):
+        with st.spinner("Fred is thinking..."):
             try:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
@@ -352,10 +337,9 @@ Fred & the LBL Team"""
                 )
                 reply = response.choices[0].message.content
                 st.session_state.chat_history["fred"].append({"role": "assistant", "content": reply})
-                st.markdown(f"<div class='assistant-message'>{reply}</div>", unsafe_allow_html=True)
+                st.chat_message("assistant").write(reply)
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
-
         st.rerun()
 
     # Footer

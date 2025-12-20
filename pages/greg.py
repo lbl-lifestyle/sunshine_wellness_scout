@@ -41,6 +41,9 @@ def show():
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.write("I'm a motivated gym rat helping you build strength, endurance, and longevity. Let's get started by building you a personalized workout routine. Congratulations on choosing a longevity lifestyle. Your future self will thank you!")
 
+    # Disclaimer
+    st.warning("**Important**: I am not a certified personal trainer or medical professional. My suggestions are general wellness education. Always consult a qualified trainer or doctor before starting a new exercise program, especially if you have injuries or conditions.")
+
     # Encouraging input
     st.markdown("### Tell Greg a little bit about you and your fitness goals")
     st.write("**Be as detailed as possible!** The more you share about your age, current fitness level, injuries, available equipment, schedule, and specific goals, the better and safer Greg's plan will be. 😊")
@@ -72,7 +75,6 @@ def show():
 
     if st.button("Generate My Custom Workout Plan", type="primary"):
         with st.spinner("Greg is building your plan..."):
-            # Core prompt
             core_prompt = f"""
 ### Weekly Workout Plan
 Create a full 7-day schedule with {days_per_week} training days and rest/recovery days.
@@ -82,7 +84,6 @@ Include warm-up, main workout (exercises, sets, reps, rest), cool-down/stretch.
 How to advance safely over 4-8 weeks.
 """
 
-            # Optional sections
             optional_prompt = ""
             if "Nutrition Guidelines" in plan_sections:
                 optional_prompt += "### Nutrition Guidelines\nSimple, sustainable eating tips to support your goals (no extreme diets).\n\n"
@@ -99,47 +100,38 @@ How to advance safely over 4-8 weeks.
             if "Long-Term Progression (12 weeks)" in plan_sections:
                 optional_prompt += "### Long-Term Progression (12 weeks)\nPhase 2 and 3 ideas for continued gains.\n\n"
 
-            # Full plan for email
             full_plan_prompt = core_prompt + """
 ### Nutrition Guidelines
-Simple, sustainable eating tips.
-
+Simple tips.
 ### Recovery & Mobility Tips
-Sleep, stretching, active recovery.
-
+Sleep and recovery.
 ### Motivation & Habit Building
-Mindset and consistency strategies.
-
+Consistency strategies.
 ### Cardio Integration
-Safe ways to add cardio.
-
+Safe additions.
 ### Home vs Gym Variations
-Equipment alternatives.
-
+Alternatives.
 ### Scaling for Travel
-No-equipment routines.
-
+No-equipment.
 ### Long-Term Progression (12 weeks)
-Next phases for ongoing improvement.
+Next phases.
 """
 
             base_prompt = f"""
 You are Greg, an energetic, motivating, and knowledgeable personal trainer focused on sustainable strength, mobility, and longevity for people over 40.
-
 Client profile:
 Age: {age}
 Fitness level: {fitness_level}
 Goals: {', '.join(goals)}
 Equipment: {', '.join(equipment) or 'Bodyweight only'}
-Injuries/limitations: {injuries or 'None mentioned'}
-Training days: {days_per_week} per week
-Session length: {session_length}
+Injuries: {injuries or 'None'}
+Training {days_per_week} days/week, {session_length} sessions
 
-Be encouraging, realistic, and safety-focused. Use proper form cues.
+Be encouraging but realistic, emphasize form and safety.
 """
 
             try:
-                # Display plan (core + selected)
+                # Display plan
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "system", "content": "You are Greg, motivating personal trainer."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
@@ -157,11 +149,9 @@ Be encouraging, realistic, and safety-focused. Use proper form cues.
                 )
                 full_plan = full_response.choices[0].message.content
 
-                # Show customized plan
                 st.success("Greg's custom plan for you!")
                 st.markdown(display_plan)
 
-                # Store full plan for email
                 st.session_state.full_plan_for_email = full_plan
 
                 st.info("📧 Want the **complete version** with every section? Fill in the email form below to get it instantly!")
@@ -216,7 +206,7 @@ Greg & the LBL Team"""
 
     # Streamlined chat
     st.markdown("### Have a follow-up question? Chat with Greg below!")
-    st.caption("Ask about form, modifications, nutrition, motivation — anything!")
+    st.caption("Ask about form, modifications, motivation — anything!")
 
     for msg in st.session_state.chat_history["greg"]:
         if msg["role"] == "user":

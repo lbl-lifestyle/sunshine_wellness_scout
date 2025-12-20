@@ -35,11 +35,14 @@ def show():
         st.rerun()
 
     # Hero image (nutrition-themed)
-    st.image("https://i.postimg.cc/8cQ7n3jK/healthy-food-bowl.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")  # Replace with your image
+    st.image("https://i.postimg.cc/8cQ7n3jK/healthy-food-bowl.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
 
     st.markdown("### 🥗 HI! I'M NORA – Your Nutrition Coach for Longevity")
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.write("I help you build sustainable, delicious eating habits inspired by Blue Zones and modern science — no fad diets, just food that helps you live better longer.")
+
+    # DISCLAIMER
+    st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions, allergies, or are on medication.")
 
     # Encouraging input
     st.markdown("### Tell Nora a little bit about you and your eating habits")

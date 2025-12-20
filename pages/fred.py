@@ -36,11 +36,10 @@ def fetch_pexels_image(neighborhood, location_hint=""):
     return None
 
 def add_images_to_report(report_text, location_hint=""):
-    """Add one photo under each unique Top 5 neighborhood (no duplicates)"""
+    """Add one photo under each Top 5 neighborhood"""
     lines = report_text.split('\n')
     enhanced_lines = []
     in_top_5 = False
-    seen_images = set()  # Track to avoid duplicates
 
     for line in lines:
         enhanced_lines.append(line)
@@ -51,13 +50,12 @@ def add_images_to_report(report_text, location_hint=""):
         if in_top_5 and line.strip().startswith(('1.', '2.', '3.', '4.', '5.')):
             parts = line.split('-', 1)
             if len(parts) > 1:
-                name_part = parts[0].strip()[2:].strip()  # e.g., "West Asheville"
+                name_part = parts[0].strip()[2:].strip()
                 img_url = fetch_pexels_image(name_part, location_hint)
-                if img_url and img_url not in seen_images:
+                if img_url:
                     enhanced_lines.append("")
                     enhanced_lines.append(f"![{name_part} – Scenic homes and neighborhood view]({img_url})")
                     enhanced_lines.append("")
-                    seen_images.add(img_url)  # Prevent duplicates
 
     return '\n'.join(enhanced_lines)
 
@@ -93,7 +91,16 @@ def show():
     st.success("**This tool is completely free – no cost, no obligation! You will receive the full personalized report below and via email.**")
     st.write("The perfect home that supports your lifestyle awaits — anywhere in the U.S.!")
 
-    client_needs = st.text_area("DESCRIBE YOUR DREAM WELLNESS NEEDS IN DETAIL. LET FRED DO THE REST!!!", height=220, placeholder="Example: Active couple in our 40s, love trails and home workouts, need gym space, near nature, budget $500k...")
+    # NEW: Encouraging input section
+    st.markdown("### Tell Fred a little bit about you and your dream wellness home")
+    st.write("**Be as detailed as possible!** The more you share about your age, family, hobbies, must-haves, daily routine, and wellness goals, the more accurate and personalized Fred's recommendations will be. 😊")
+    st.caption("💡 Tip: Include age, family size, favorite activities, deal-breakers, and why longevity matters to you!")
+
+    client_needs = st.text_area(
+        "Share your story – the more details, the better Fred can help!",
+        height=280,
+        placeholder="""Example: We're a couple in our early 50s with two dogs, love morning walks, yoga, and cooking healthy meals. Looking for a quiet, nature-filled neighborhood with trails and parks nearby, a home with space for a yoga/meditation room, natural light, and a garden. Prefer single-level or main-floor master for aging in place. Budget up to $750k. Interested in Florida, North Carolina, or Colorado. We value community events, farmers markets, and low stress — no busy highways please!"""
+    )
 
     col1, col2 = st.columns(2)
     with col1:
@@ -127,7 +134,7 @@ def show():
 
     if st.button("🔍 GENERATE MY REPORT", type="primary"):
         if not client_needs.strip():
-            st.warning("Please describe your lifestyle needs above!")
+            st.warning("Please share your story above so Fred can create the best report for you!")
         else:
             with st.spinner("Fred is crafting your personalized report..."):
                 # Permanent defaults
@@ -144,7 +151,7 @@ def show():
 # (repeat for 2-5)
 """
 
-                # Selected optional sections
+                # Optional sections
                 selected_prompt = ""
                 if "Wellness/Outdoor Highlights" in report_sections:
                     selected_prompt += "### Wellness/Outdoor Highlights\n6-10 sentences covering key trails, parks, etc.\n\n"
@@ -165,8 +172,7 @@ def show():
                 if "Top Property Recommendations" in report_sections:
                     selected_prompt += "### Top Property Recommendations\n1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).\n\n"
 
-                # Full prompt for display/email/history
-                full_sections_prompt = permanent_prompt + selected_prompt
+                full_prompt = permanent_prompt + selected_prompt
 
                 base_prompt = f"""
                 Client description:
@@ -176,7 +182,7 @@ def show():
 
                 You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States.
 
-                Follow this EXACT structure with no deviations. Use clear, professional language.
+                Use warm, encouraging, insightful language.
                 """
 
                 try:
@@ -184,24 +190,20 @@ def show():
                         model=MODEL_NAME,
                         messages=[
                             {"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor."},
-                            {"role": "user", "content": base_prompt + "\n" + full_sections_prompt}
+                            {"role": "user", "content": base_prompt + "\n" + full_prompt}
                         ],
                         max_tokens=3000,
                         temperature=0.7
                     )
                     report = response.choices[0].message.content
 
-                    # Add images (only to Top 5)
                     report_with_images = add_images_to_report(report, location_hint)
 
-                    # Display once
                     st.success("Fred found your perfect matches! Here's your personalized report:")
                     st.markdown(report_with_images)
 
-                    # Save to history
                     st.session_state.chat_history["fred"].append({"role": "assistant", "content": f"Here's your full wellness home report:\n\n{report_with_images}"})
 
-                    # Email form
                     st.markdown("### Get Your Full Report Emailed (Save & Share)")
                     with st.form("lead_form", clear_on_submit=True):
                         name = st.text_input("Your Name")
@@ -212,21 +214,19 @@ def show():
                             if not email:
                                 st.error("Email required!")
                             else:
+                                email_body = f"Hi {name or 'there'},\n\nThank you for exploring LBL Lifestyle Solutions!\n\nYour full personalized wellness home report is below:\n\n{report_with_images}\n\nBest regards,\nFred & the LBL Team"
                                 data = {
                                     "from": "reports@lbllifestyle.com",
                                     "to": [email],
                                     "cc": [YOUR_EMAIL],
                                     "subject": f"{name or 'Client'}'s LBL Wellness Home Report",
-                                    "text": f"Hi {name or 'there'},\n\nThank you for exploring LBL Lifestyle Solutions!\n\nYour full personalized wellness home report is below:\n\n{report_with_images}\n\nBest regards,\nFred & the LBL Team"
+                                    "text": email_body
                                 }
-                                headers = {
-                                    "Authorization": f"Bearer {RESEND_API_KEY}",
-                                    "Content-Type": "application/json"
-                                }
+                                headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
                                 try:
                                     response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                                     if response.status_code == 200:
-                                        st.success(f"Full report sent to {email}! Check your inbox.")
+                                        st.success(f"Full report sent to {email}!")
                                         st.balloons()
                                     else:
                                         st.error(f"Send failed: {response.text}")
@@ -234,7 +234,7 @@ def show():
                                     st.error(f"Send error: {str(e)}")
                 except Exception as e:
                     st.error("Fred is reviewing listings... try again soon.")
-                    st.caption(f"Note: {str(e)}")
+                    st.caption(f"Error: {str(e)}")
 
     # Streamlined chat
     st.markdown("### Have a follow-up question? Start a chat with me in the Ask Fred banner below!")

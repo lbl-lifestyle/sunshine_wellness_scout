@@ -19,19 +19,18 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
+    # FORCE SCROLL TO TOP WHEN PAGE LOADS
+    st.markdown("""
+    <script>
+        window.parent.document.querySelector('section.main').scrollTop = 0;
+        window.scrollTo(0, 0);
+    </script>
+    """, unsafe_allow_html=True)
+
     # Back button
     if st.button("← Back to Team"):
         st.session_state.current_page = "home"
         st.rerun()
-
-    # Auto-scroll to hero
-    st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
-    st.markdown("""
-    <script>
-        const element = document.getElementById('agent-interaction');
-        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    </script>
-    """, unsafe_allow_html=True)
 
     # Hero image
     st.image("https://i.postimg.cc/mDy2FKQg/outdoor-fitness-scaled.webp", caption="Greatness Await – Welcome to your longevity lifestyle")
@@ -76,7 +75,6 @@ def show():
                 st.success("Greg's custom plan for you!")
                 st.markdown(plan)
 
-                # Save to chat history for follow-ups
                 st.session_state.chat_history["greg"].append({"role": "assistant", "content": f"Here's your full custom workout plan:\n\n{plan}"})
             except Exception as e:
                 st.error("Greg is pumping iron... try again soon.")

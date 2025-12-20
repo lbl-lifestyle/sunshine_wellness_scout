@@ -21,6 +21,15 @@ st.markdown("""
 # Back to home
 st.button("← Back to Team", on_click=lambda: st.switch_page("streamlit_app.py"))
 
+# Auto-scroll to hero image
+st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
+st.markdown("""
+<script>
+    const element = document.getElementById('agent-interaction');
+    if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+</script>
+""", unsafe_allow_html=True)
+
 # Hero image
 st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
 
@@ -34,17 +43,17 @@ health_data = st.text_area("Or enter data manually", height=150)
 question = st.text_input("General question (optional)")
 
 if st.button("Get Insights", type="primary"):
-    if not uploaded_file and not health_data.strip() and not question.strip():
+    if not uploaded_file and not health_data and not question:
         st.warning("Please provide data or a question!")
     else:
-        file_content = ""
-        if uploaded_file:
-            try:
-                file_content = uploaded_file.read().decode("utf-8")
-            except:
-                file_content = "[File uploaded but unreadable]"
-        combined = file_content or health_data
         with st.spinner("Nurse Zoey Zoe is reviewing..."):
+            file_content = ""
+            if uploaded_file:
+                try:
+                    file_content = uploaded_file.read().decode("utf-8")
+                except:
+                    file_content = "[File uploaded but unreadable]"
+            combined = file_content or health_data
             zoey_prompt = f"""
             You are Nurse Zoey Zoe, a compassionate nurse providing general wellness education.
             Data: {combined}

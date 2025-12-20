@@ -1,98 +1,21 @@
 import streamlit as st
-import requests
 from openai import OpenAI
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
-RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
-YOUR_EMAIL = st.secrets["YOUR_EMAIL"]
-PEXELS_API_KEY = st.secrets.get("PEXELS_API_KEY", "")
-
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
-def fetch_pexels_image(neighborhood="", location_hint="", theme_hints=""):
-    """Smart fallback: neighborhood → city/state → theme"""
-    if not PEXELS_API_KEY:
-        return None
-
-    headers = {"Authorization": PEXELS_API_KEY}
-    url = "https://api.pexels.com/v1/search"
-
-    queries = []
-    if neighborhood and location_hint:
-        queries.append(f"{neighborhood} {location_hint} neighborhood homes landscape nature aerial view")
-    if neighborhood:
-        queries.append(f"{neighborhood} residential homes nature")
-    if location_hint:
-        queries.append(f"{location_hint} city skyline landscape homes nature")
-        queries.append(f"{location_hint} scenic view aerial")
-    if theme_hints:
-        queries.append(f"{location_hint or 'USA'} {theme_hints} landscape nature")
-    queries.append("wellness home nature landscape sunset")
-
-    seen_urls = set()
-    for query in queries:
-        params = {"query": query, "per_page": 3, "orientation": "landscape"}
-        try:
-            response = requests.get(url, headers=headers, params=params, timeout=10)
-            if response.status_code == 200:
-                data = response.json()
-                for photo in data.get("photos", []):
-                    img_url = photo["src"]["large2x"]
-                    if img_url not in seen_urls:
-                        seen_urls.add(img_url)
-                        return img_url
-        except:
-            continue
-    return None
-
-def add_images_to_report(report_text, location_hint="", client_needs=""):
-    """Add one relevant photo under each Top 5 neighborhood"""
-    lines = report_text.split('\n')
-    enhanced_lines = []
-    in_top_5 = False
-    seen_urls = set()
-
-    lower_needs = client_needs.lower()
-    theme_hints = ""
-    if any(word in lower_needs for word in ["beach", "ocean", "tampa", "florida", "coast"]):
-        theme_hints = "beach ocean sunset palm trees waterfront"
-    elif any(word in lower_needs for word in ["mountain", "asheville", "colorado", "hike", "trail", "cabins"]):
-        theme_hints = "mountains cabins forest autumn nature scenic"
-    elif any(word in lower_needs for word in ["lake", "waterfront"]):
-        theme_hints = "lake waterfront homes nature"
-
-    for line in lines:
-        enhanced_lines.append(line)
-
-        if "Top 5 Neighborhoods" in line or "Top 5 Suburbs" in line:
-            in_top_5 = True
-
-        if in_top_5 and line.strip().startswith(('1.', '2.', '3.', '4.', '5.')):
-            parts = line.split('-', 1)
-            if len(parts) > 1:
-                name_part = parts[0].strip()[2:].strip()
-                img_url = fetch_pexels_image(name_part, location_hint, theme_hints)
-                if img_url and img_url not in seen_urls:
-                    enhanced_lines.append("")
-                    enhanced_lines.append(f"![{name_part} – Beautiful homes and scenery]({img_url})")
-                    enhanced_lines.append("")
-                    seen_urls.add(img_url)
-
-    return '\n'.join(enhanced_lines)
-
 def show():
-    # Initialize chat history if not exists
+    # Initialize chat history
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = {"fred": []}
+        st.session_state.chat_history = {"greg": []}
 
     # CSS
     st.markdown("""
     <style>
         .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }
         .stButton>button { background-color: #ea580c; color: white; border-radius: 15px; font-weight: bold; font-size: 1.2rem; height: 4em; width: 100%; }
-        img { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); margin: 20px 0; max-width: 100%; height: auto; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -107,254 +30,217 @@ def show():
     """, unsafe_allow_html=True)
 
     # Back button — unique key
-    if st.button("← Back to Team", key="fred_back_button"):
+    if st.button("← Back to Team", key="greg_back_button"):
         st.session_state.current_page = "home"
         st.rerun()
 
     # Hero image
-    st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
+    st.image("https://i.postimg.cc/mDy2FKQg/outdoor-fitness-scaled.webp", caption="Greatness Await – Welcome to your longevity lifestyle")
 
-    st.markdown("### 🏡 FRED – Your Wellness Home Scout")
-    st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
-    st.write("The perfect home that supports your lifestyle awaits — anywhere in the U.S.!")
+    st.markdown("### 💪 HI!!! I'M GREG – Your Awesome Personal Trainer. GET SOME!!!!")
+    st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
+    st.write("I'm a motivated gym rat helping you build strength, endurance, and longevity. Let's get started by building you a personalized workout routine. Congratulations on choosing a longevity lifestyle. Your future self will thank you!")
 
     # Encouraging input
-    st.markdown("### Tell Fred a little bit about you and your dream wellness home")
-    st.write("**Be as detailed as possible!** The more you share about your age, family, hobbies, must-haves, daily routine, and wellness goals, the more accurate and personalized Fred's recommendations will be. 😊")
-    st.caption("💡 Tip: Include age, family size, favorite activities, deal-breakers, and why longevity matters to you!")
+    st.markdown("### Tell Greg a little bit about you and your fitness goals")
+    st.write("**Be as detailed as possible!** The more you share about your age, current fitness level, injuries, available equipment, schedule, and specific goals, the better and safer Greg's plan will be. 😊")
+    st.caption("💡 Tip: Include age, injuries, equipment at home/gym, days per week you can train, and what motivates you!")
 
-    client_needs = st.text_area(
-        "Share your story – the more details, the better Fred can help!",
-        height=280,
-        placeholder="""Example: We're a couple in our early 50s with two dogs, love morning walks, yoga, and cooking healthy meals. Looking for a quiet, nature-filled neighborhood with trails and parks nearby, a home with space for a yoga/meditation room, natural light, and a garden. Prefer single-level or main-floor master for aging in place. Budget up to $750k. Interested in Florida, North Carolina, or Colorado. We value community events, farmers markets, and low stress — no busy highways please!"""
-    )
+    age = st.slider("Your age", 18, 80, 45)
+    fitness_level = st.selectbox("CURRENT FITNESS LEVEL", ["Beginner", "Intermediate", "Advanced"])
+    goals = st.multiselect("PRIMARY GOALS", ["Build strength", "Improve endurance", "Lose fat", "Gain muscle", "Increase flexibility", "Better mobility", "General wellness"])
+    equipment = st.multiselect("AVAILABLE EQUIPMENT", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", "Community gym resistance machines"])
+    injuries = st.text_area("ANY INJURIES OR LIMITATIONS? (optional)", placeholder="Example: Bad knee from old injury, avoid high-impact; shoulder issue, no overhead presses")
+    days_per_week = st.slider("DAYS PER WEEK YOU CAN TRAIN", 1, 7, 4)
+    session_length = st.selectbox("PREFERRED SESSION LENGTH", ["20-30 minutes", "30-45 minutes", "45-60 minutes"])
 
-    col1, col2 = st.columns(2)
-    with col1:
-        budget = st.number_input("Maximum budget ($)", min_value=100000, value=500000, step=10000)
-    with col2:
-        location = st.text_input("Preferred state or area (e.g., North Carolina, Asheville, Tampa FL)", value="")
-
-    location_hint = location.strip() if location else "wellness community USA"
-
-    st.markdown("### Refine Your Report (Optional)")
-    st.write("The report always includes: Introduction, Top 5 Neighborhoods, and Must-Have Features. Choose additional sections to add.")
-    report_sections = st.multiselect(
+    st.markdown("### Refine Your Plan (Optional)")
+    st.write("Core plan always includes weekly routine, warm-up, main workout, cool-down, and progression tips. Add extras:")
+    plan_sections = st.multiselect(
         "Add optional sections:",
         [
-            "Wellness/Outdoor Highlights",
-            "Cost of Living & Financial Breakdown",
-            "Healthcare Access & Longevity Metrics",
-            "Community & Social Wellness",
-            "Climate & Seasonal Wellness Tips",
-            "Transportation & Daily Convenience",
-            "Future-Proofing for Aging in Place",
-            "Sample Daily Wellness Routine in This Area",
-            "Top Property Recommendations"
+            "Nutrition Guidelines",
+            "Recovery & Mobility Tips",
+            "Motivation & Habit Building",
+            "Cardio Integration",
+            "Home vs Gym Variations",
+            "Scaling for Travel",
+            "Long-Term Progression (12 weeks)"
         ],
-        default=[
-            "Wellness/Outdoor Highlights",
-            "Cost of Living & Financial Breakdown",
-            "Healthcare Access & Longevity Metrics"
-        ]
+        default=["Nutrition Guidelines", "Recovery & Mobility Tips"]
     )
 
-    if st.button("🔍 GENERATE MY REPORT", type="primary"):
-        if not client_needs.strip():
-            st.warning("Please share your story above so Fred can create the best report for you!")
-        else:
-            with st.spinner("Fred is crafting your personalized report..."):
-                # Core sections (always included)
-                core_prompt = """
-### Introduction
-5-6 sentences introducing how well their needs match the area and budget.
+    if st.button("Generate My Custom Workout Plan", type="primary"):
+        with st.spinner("Greg is building your plan..."):
+            # Core prompt
+            core_prompt = f"""
+### Weekly Workout Plan
+Create a full 7-day schedule with {days_per_week} training days and rest/recovery days.
+Include warm-up, main workout (exercises, sets, reps, rest), cool-down/stretch.
 
-### Top 5 Neighborhoods/Suburbs and Why They Fit
-1. [Neighborhood Name Here] - [Detailed explanation... 5-8 sentences.] [Fun facts: weather trends, cost of living, safety, commute/transportation, healthcare, culture/lifestyle, and overall vibe. 3-5 sentences.]
-# (repeat for 2-5)
-
-### Top 5 Must-Have Home Features
-1. [Feature Name Here] - [In-depth reason... 5-8 sentences.]
-# (repeat for 2-5)
+### Progression Tips
+How to advance safely over 4-8 weeks.
 """
 
-                # Optional sections (only if selected)
-                optional_prompt = ""
-                if "Wellness/Outdoor Highlights" in report_sections:
-                    optional_prompt += "### Wellness/Outdoor Highlights\n6-10 sentences covering key trails, parks, etc.\n\n"
-                if "Cost of Living & Financial Breakdown" in report_sections:
-                    optional_prompt += "### Cost of Living & Financial Breakdown\nDetailed comparison of monthly expenses, property taxes, and affordability for longevity planning (6-8 sentences).\n\n"
-                if "Healthcare Access & Longevity Metrics" in report_sections:
-                    optional_prompt += "### Healthcare Access & Longevity Metrics\nTop hospitals, specialists, life expectancy, air quality, and wellness infrastructure (5-7 sentences).\n\n"
-                if "Community & Social Wellness" in report_sections:
-                    optional_prompt += "### Community & Social Wellness\nLocal groups, events, and opportunities for connection and belonging (5-7 sentences).\n\n"
-                if "Climate & Seasonal Wellness Tips" in report_sections:
-                    optional_prompt += "### Climate & Seasonal Wellness Tips\nYear-round activity potential, weather patterns, and tips for thriving in all seasons (5-7 sentences).\n\n"
-                if "Transportation & Daily Convenience" in report_sections:
-                    optional_prompt += "### Transportation & Daily Convenience\nWalkability, transit, and ease of daily errands for an active lifestyle (4-6 sentences).\n\n"
-                if "Future-Proofing for Aging in Place" in report_sections:
-                    optional_prompt += "### Future-Proofing for Aging in Place\nAvailability of accessible homes and long-term livability features (4-6 sentences).\n\n"
-                if "Sample Daily Wellness Routine in This Area" in report_sections:
-                    optional_prompt += "### Sample Daily Wellness Routine in This Area\nAn inspiring example day tailored to the recommended locations (6-8 sentences).\n\n"
-                if "Top Property Recommendations" in report_sections:
-                    optional_prompt += "### Top Property Recommendations\n1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).\n\n"
+            # Optional sections
+            optional_prompt = ""
+            if "Nutrition Guidelines" in plan_sections:
+                optional_prompt += "### Nutrition Guidelines\nSimple, sustainable eating tips to support your goals (no extreme diets).\n\n"
+            if "Recovery & Mobility Tips" in plan_sections:
+                optional_prompt += "### Recovery & Mobility Tips\nSleep, stretching, foam rolling, active recovery ideas.\n\n"
+            if "Motivation & Habit Building" in plan_sections:
+                optional_prompt += "### Motivation & Habit Building\nMindset tips, tracking progress, staying consistent.\n\n"
+            if "Cardio Integration" in plan_sections:
+                optional_prompt += "### Cardio Integration\nHow to add walking, running, or HIIT safely.\n\n"
+            if "Home vs Gym Variations" in plan_sections:
+                optional_prompt += "### Home vs Gym Variations\nModifications for different equipment setups.\n\n"
+            if "Scaling for Travel" in plan_sections:
+                optional_prompt += "### Scaling for Travel\nBodyweight-only routines for hotels or trips.\n\n"
+            if "Long-Term Progression (12 weeks)" in plan_sections:
+                optional_prompt += "### Long-Term Progression (12 weeks)\nPhase 2 and 3 ideas for continued gains.\n\n"
 
-                # Full report prompt (all possible sections) — for email only
-                full_report_prompt = core_prompt + """
-### Wellness/Outdoor Highlights
-6-10 sentences covering key trails, parks, etc.
+            # Full plan for email
+            full_plan_prompt = core_prompt + """
+### Nutrition Guidelines
+Simple, sustainable eating tips.
 
-### Cost of Living & Financial Breakdown
-Detailed comparison of monthly expenses, property taxes, and affordability for longevity planning (6-8 sentences).
+### Recovery & Mobility Tips
+Sleep, stretching, active recovery.
 
-### Healthcare Access & Longevity Metrics
-Top hospitals, specialists, life expectancy, air quality, and wellness infrastructure (5-7 sentences).
+### Motivation & Habit Building
+Mindset and consistency strategies.
 
-### Community & Social Wellness
-Local groups, events, and opportunities for connection and belonging (5-7 sentences).
+### Cardio Integration
+Safe ways to add cardio.
 
-### Climate & Seasonal Wellness Tips
-Year-round activity potential, weather patterns, and tips for thriving in all seasons (5-7 sentences).
+### Home vs Gym Variations
+Equipment alternatives.
 
-### Transportation & Daily Convenience
-Walkability, transit, and ease of daily errands for an active lifestyle (4-6 sentences).
+### Scaling for Travel
+No-equipment routines.
 
-### Future-Proofing for Aging in Place
-Availability of accessible homes and long-term livability features (4-6 sentences).
-
-### Sample Daily Wellness Routine in This Area
-An inspiring example day tailored to the recommended locations (6-8 sentences).
-
-### Top Property Recommendations
-1-3 specific property ideas with estimated prices, key wellness features, and why they fit (4-6 sentences each).
+### Long-Term Progression (12 weeks)
+Next phases for ongoing improvement.
 """
 
-                base_prompt = f"""
-                Client description:
-                {client_needs}
-                Budget: ${budget:,}
-                Preferred location(s): {location or 'wellness-friendly areas across the U.S.'}
+            base_prompt = f"""
+You are Greg, an energetic, motivating, and knowledgeable personal trainer focused on sustainable strength, mobility, and longevity for people over 40.
 
-                You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States.
+Client profile:
+Age: {age}
+Fitness level: {fitness_level}
+Goals: {', '.join(goals)}
+Equipment: {', '.join(equipment) or 'Bodyweight only'}
+Injuries/limitations: {injuries or 'None mentioned'}
+Training days: {days_per_week} per week
+Session length: {session_length}
 
-                Use warm, encouraging, insightful language.
-                """
+Be encouraging, realistic, and safety-focused. Use proper form cues.
+"""
 
-                try:
-                    # Generate display report (core + selected optional)
-                    display_response = client.chat.completions.create(
-                        model=MODEL_NAME,
-                        messages=[
-                            {"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor."},
-                            {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}
-                        ],
-                        max_tokens=3000,
-                        temperature=0.7
-                    )
-                    display_report = display_response.choices[0].message.content
+            try:
+                # Display plan (core + selected)
+                display_response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[{"role": "system", "content": "You are Greg, motivating personal trainer."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
+                    max_tokens=2500,
+                    temperature=0.7
+                )
+                display_plan = display_response.choices[0].message.content
 
-                    # Generate full report (all sections) for email only
-                    full_response = client.chat.completions.create(
-                        model=MODEL_NAME,
-                        messages=[
-                            {"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor."},
-                            {"role": "user", "content": base_prompt + "\n" + full_report_prompt}
-                        ],
-                        max_tokens=4000,
-                        temperature=0.7
-                    )
-                    full_report = full_response.choices[0].message.content
+                # Full plan for email
+                full_response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[{"role": "system", "content": "You are Greg, motivating personal trainer."}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
+                    max_tokens=3500,
+                    temperature=0.7
+                )
+                full_plan = full_response.choices[0].message.content
 
-                    # Add photos to both
-                    display_report_with_images = add_images_to_report(display_report, location_hint, client_needs)
-                    full_report_with_images = add_images_to_report(full_report, location_hint, client_needs)
+                # Show customized plan
+                st.success("Greg's custom plan for you!")
+                st.markdown(display_plan)
 
-                    # Show only the customized report on screen
-                    st.success("Fred found your perfect matches! Here's your personalized report:")
-                    st.markdown(display_report_with_images)
+                # Store full plan for email
+                st.session_state.full_plan_for_email = full_plan
 
-                    # Store full report for email (hidden)
-                    st.session_state.full_report_for_email = full_report_with_images
+                st.info("📧 Want the **complete version** with every section? Fill in the email form below to get it instantly!")
+            except Exception as e:
+                st.error("Greg is pumping iron... try again soon.")
+                st.caption(f"Error: {str(e)}")
 
-                    # Save display report to chat history
-                    st.session_state.chat_history["fred"].append({"role": "assistant", "content": f"Here's your personalized report:\n\n{display_report_with_images}"})
-                except Exception as e:
-                    st.error("Fred is reviewing listings... try again soon.")
-                    st.caption(f"Error: {str(e)}")
-
-    # Email form — shown only after report generated
-    if "full_report_for_email" in st.session_state:
-        st.markdown("### Get Your Full Report Emailed (Save & Share)")
-        st.write("The complete version includes every possible section — perfect for saving or sharing!")
-        with st.form("lead_form", clear_on_submit=True):
+    # Email form
+    if "full_plan_for_email" in st.session_state:
+        st.markdown("### Get Your Full Plan Emailed (Save & Share)")
+        with st.form("lead_form_greg", clear_on_submit=True):
             name = st.text_input("Your Name")
             email = st.text_input("Email (required)", placeholder="you@example.com")
             phone = st.text_input("Phone (optional)")
-            submitted = st.form_submit_button("📧 Send My Full Report")
+            submitted = st.form_submit_button("📧 Send My Full Plan")
             if submitted:
                 if not email:
                     st.error("Email required!")
                 else:
-                    report_to_send = st.session_state.full_report_for_email
+                    plan_to_send = st.session_state.full_plan_for_email
                     email_body = f"""Hi {name or 'there'},
 
-Thank you for exploring LBL Lifestyle Solutions – Your Holistic Longevity Blueprint.
+Thank you for training with Greg at LBL Lifestyle Solutions!
 
-Here's your COMPLETE personalized wellness home report:
+Here's your COMPLETE personalized workout plan:
 
-{report_to_send}
+{plan_to_send}
 
-Reply anytime to discuss how we can build your complete longevity plan.
+Keep crushing it — you've got this!
 
-Best regards,
-Fred & the LBL Team"""
+Best,
+Greg & the LBL Team"""
                     data = {
                         "from": "reports@lbllifestyle.com",
                         "to": [email],
                         "cc": [YOUR_EMAIL],
-                        "subject": f"{name or 'Client'}'s Complete LBL Wellness Home Report",
+                        "subject": f"{name or 'Client'}'s Complete LBL Fitness Plan",
                         "text": email_body
                     }
                     headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
                     try:
                         response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                         if response.status_code == 200:
-                            st.success(f"Complete report sent to {email}! Check your inbox.")
+                            st.success(f"Full plan sent to {email}! Check your inbox.")
                             st.balloons()
-                            if "full_report_for_email" in st.session_state:
-                                del st.session_state.full_report_for_email
+                            if "full_plan_for_email" in st.session_state:
+                                del st.session_state.full_plan_for_email
                         else:
                             st.error(f"Send failed: {response.text}")
                     except Exception as e:
                         st.error(f"Send error: {str(e)}")
 
     # Streamlined chat
-    st.markdown("### Have a follow-up question? Chat with Fred below!")
-    st.caption("Ask anything to refine your search, explore a neighborhood, or get more details.")
+    st.markdown("### Have a follow-up question? Chat with Greg below!")
+    st.caption("Ask about form, modifications, nutrition, motivation — anything!")
 
-    for msg in st.session_state.chat_history["fred"]:
+    for msg in st.session_state.chat_history["greg"]:
         if msg["role"] == "user":
             st.chat_message("user").write(msg["content"])
         else:
             st.chat_message("assistant").write(msg["content"])
 
-    if prompt := st.chat_input("Ask Fred a question..."):
-        st.session_state.chat_history["fred"].append({"role": "user", "content": prompt})
+    if prompt := st.chat_input("Ask Greg a question..."):
+        st.session_state.chat_history["greg"].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
-        with st.spinner("Fred is thinking..."):
+        with st.spinner("Greg is thinking..."):
             try:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[
-                        {"role": "system", "content": "You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States."},
-                        *st.session_state.chat_history["fred"]
+                        {"role": "system", "content": "You are Greg, a highly motivated, energetic personal trainer focused on building strength, endurance, and longevity."},
+                        *st.session_state.chat_history["greg"]
                     ],
                     max_tokens=800,
                     temperature=0.7
                 )
                 reply = response.choices[0].message.content
-                st.session_state.chat_history["fred"].append({"role": "assistant", "content": reply})
+                st.session_state.chat_history["greg"].append({"role": "assistant", "content": reply})
                 st.chat_message("assistant").write(reply)
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")

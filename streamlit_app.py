@@ -8,14 +8,15 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = {
         "fred": [],
         "greg": [],
-        "zoey": []
+        "zoey": [],
+        "nora": []  # Added Nora
     }
 
 if "current_page" not in st.session_state:
     st.session_state.current_page = "home"
 
 # Safety reset
-if st.session_state.current_page not in ["home", "fred", "greg", "zoey"]:
+if st.session_state.current_page not in ["home", "fred", "greg", "zoey", "nora"]:
     st.session_state.current_page = "home"
 
 def navigate_to(page: str):
@@ -23,12 +24,11 @@ def navigate_to(page: str):
     st.rerun()
 
 # ===================================================
-# ROUTING: Show ONLY the selected content
+# HOME PAGE
 # ===================================================
 
-# HOME PAGE
 if st.session_state.current_page == "home":
-    # Your full beautiful home page (unchanged)
+    # Your full beautiful home page
     st.markdown("""
     <style>
         .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }
@@ -60,7 +60,7 @@ if st.session_state.current_page == "home":
     st.markdown("### MEET THE LIFESTYLE TEAM")
     st.markdown("<p style='text-align:center; color:#0c4a6e; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
 
-    cols = st.columns(3)
+    cols = st.columns(4)  # Changed to 4 columns
 
     with cols[0]:
         st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
@@ -83,6 +83,13 @@ if st.session_state.current_page == "home":
         if st.button("Talk to Nurse Zoey Zoe →", key="zoey_home"):
             navigate_to("zoey")
 
+    with cols[3]:
+        st.markdown("<div class='agent-name'>NORA</div>", unsafe_allow_html=True)
+        st.image("https://i.postimg.cc/8cQ7n3jK/healthy-food-bowl.jpg", width=200)  # Replace with your Nora image
+        st.markdown("<div class='agent-desc'>*YOUR NUTRITION COACH* <br>Personalized longevity meal plans, Blue Zones recipes, grocery lists — delicious food for a longer life.</div>", unsafe_allow_html=True)
+        if st.button("Talk to Nora →", key="nora_home"):
+            navigate_to("nora")
+
     st.markdown("---")
     st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
 
@@ -92,7 +99,7 @@ if st.session_state.current_page == "home":
 
 elif st.session_state.current_page == "fred":
     import pages.fred as fred_page
-    fred_page.show()  # This loads Fred's full page — nothing else
+    fred_page.show()
 
 elif st.session_state.current_page == "greg":
     import pages.greg as greg_page
@@ -101,3 +108,7 @@ elif st.session_state.current_page == "greg":
 elif st.session_state.current_page == "zoey":
     import pages.nurse_zoey_zoe as zoey_page
     zoey_page.show()
+
+elif st.session_state.current_page == "nora":
+    import pages.nora as nora_page
+    nora_page.show()

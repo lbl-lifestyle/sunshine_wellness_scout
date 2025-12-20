@@ -88,7 +88,7 @@ def show():
                 st.caption(f"Note: {str(e)}")
 
     # Chat Section
-    st.markdown("### Have a follow-up question? Chat with me!")
+    st.markdown("### Have a follow-up question? Start a chat with me in the Ask Greg banner below!")
     st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
     for msg in st.session_state.chat_history["greg"]:

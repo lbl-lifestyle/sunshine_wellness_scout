@@ -93,8 +93,7 @@ def show():
         for diet in selected_dietary:
             st.caption(f"**{diet}**: {dietary_tooltips[diet]}")
 
-    
-    dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
+        dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
     
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
@@ -124,6 +123,7 @@ def show():
     
 
     # Greg upload
+    
     
     st.write("**Optional: Team Up with Greg!**")
     st.write("If you've generated a workout plan with Greg, upload it here — Nora will coordinate nutrition to support your training.")

@@ -1,6 +1,6 @@
 import streamlit as st
 
-# CSS (updated — removed deprecated use_column_width)
+# CSS
 st.markdown("""
 <style>
     .stApp { background: linear-gradient(to bottom, #ffecd2, #fcb69f); color: #0c4a6e; }

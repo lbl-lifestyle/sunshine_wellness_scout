@@ -19,19 +19,18 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
+    # FORCE SCROLL TO TOP WHEN PAGE LOADS
+    st.markdown("""
+    <script>
+        window.parent.document.querySelector('section.main').scrollTop = 0;
+        window.scrollTo(0, 0);
+    </script>
+    """, unsafe_allow_html=True)
+
     # Back button
     if st.button("← Back to Team"):
         st.session_state.current_page = "home"
         st.rerun()
-
-    # Auto-scroll to hero
-    st.markdown("<div id='agent-interaction'></div>", unsafe_allow_html=True)
-    st.markdown("""
-    <script>
-        const element = document.getElementById('agent-interaction');
-        if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    </script>
-    """, unsafe_allow_html=True)
 
     # Hero image
     st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
@@ -84,7 +83,6 @@ def show():
                     st.success("Nurse Zoey Zoe's insights:")
                     st.markdown(insights)
 
-                    # Save to chat history
                     st.session_state.chat_history["zoey"].append({"role": "assistant", "content": f"Here's your wellness insights:\n\n{insights}"})
                 except Exception as e:
                     st.error("Nurse Zoey Zoe is consulting... try again.")

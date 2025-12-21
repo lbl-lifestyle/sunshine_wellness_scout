@@ -11,13 +11,13 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"zoey": []}
 
-    # NEW PROFESSIONAL DESIGN
+    # PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
         
         .stApp {
-            background: linear-gradient(to bottom, #f8f9fa, #e6f0fa);
+            background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
             color: #1e3a2f;
             font-family: 'Inter', sans-serif;
         }
@@ -26,26 +26,45 @@ def show():
             color: #2d6a4f;
             font-weight: 600;
         }
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div,
+        .stSlider > div > div > div {
+            border: 2px solid #a0c4d8 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+            background-color: white !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        }
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: #2d6a4f !important;
+        }
+        .optional-box {
+            background-color: #f0f7fc !important;
+            border: 2px solid #a0c4d8 !important;
+            border-left: 6px solid #2d6a4f !important;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+        label {
+            font-weight: 600 !important;
+            color: #2d6a4f !important;
+            font-size: 1.05rem !important;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
+        }
         .stButton>button {
             background-color: #2d6a4f;
             color: white;
             border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            height: 3.5em;
-            border: none;
-            box-shadow: 0 4px 8px rgba(45, 106, 79, 0.2);
         }
         .stButton>button:hover {
             background-color: #40916c;
-        }
-        .stSuccess, .stInfo {
-            background-color: #d8f0e6;
-            border-left: 5px solid #40916c;
-        }
-        .stWarning {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
         }
         img {
             border-radius: 16px;
@@ -78,6 +97,16 @@ def show():
 
     # Disclaimer
     st.warning("**Important**: I am not a doctor and do not provide medical diagnoses, treatments, or prescriptions. This is general education only. Always consult a licensed healthcare professional for personal medical advice.")
+
+    # Quick Start Ideas
+    with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
+        st.markdown("""
+        Here are popular ways users get started:
+        - Explain my bloodwork in simple terms
+        - What lifestyle changes help lower blood pressure?
+        - Review my symptoms and when to see a doctor
+        - Suggest preventive screenings for my age
+        """)
 
     # Encouraging input
     st.markdown("### Tell Zoey about your health questions or data")
@@ -187,6 +216,15 @@ Use phrases like "Generally speaking..." or "Standard guidelines suggest...".
                     st.session_state.full_insights_for_email = full_insights
 
                     st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
+
+                    # Follow-up suggestions
+                    st.markdown("### Would you like me to...")
+                    st.markdown("""
+                    - Explain any part in more detail?
+                    - Suggest lifestyle changes for a specific concern?
+                    - Help prepare questions for your doctor?
+                    - Coordinate with Nora for nutrition tips?
+                    """)
                 except Exception as e:
                     st.error("Nurse Zoey Zoe is consulting... try again.")
                     st.caption(f"Error: {str(e)}")

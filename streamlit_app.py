@@ -68,10 +68,6 @@ if st.session_state.current_page == "home":
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             color: #1e3a2f;
         }
-        .opening-statement strong {
-            color: #2d6a4f;
-            font-weight: 600;
-        }
         .agent-name {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
@@ -113,23 +109,41 @@ if st.session_state.current_page == "home":
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
+        /* Top navigation tabs styling */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .stTabs [data-baseweb="tab"] {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d6a4f;
+        }
+        .stTabs [data-baseweb="tab"][aria-selected="true"] {
+            color: #40916c;
+            border-bottom: 3px solid #40916c;
+        }
     </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
-    
-    # Version 1: Muted, play once, standard spacing (safest for mobile)
+
+    # VIDEO EMBED (Version 1 — muted, looping)
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
-        <iframe src="https://player.vimeo.com/video/1148502814?autoplay=1&muted=1&background=1&title=0&byline=0&portrait=0" 
-                width="800" height="450" frameborder="0" allow="autoplay; fullscreen" allowfullscreen>
+        <iframe width="800" height="450"
+                src="https://www.youtube.com/embed/IhiRZbkENGo?autoplay=1&mute=1&loop=1&playlist=IhiRZbkENGo&controls=0&rel=0&modestbranding=1"
+                title="LBL Lifestyle Solutions – Your Longevity Team"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
         </iframe>
     </div>
     """, unsafe_allow_html=True)
-    
-      
-    # VERSION 1 OPENING STATEMENT
+
+    # OPENING STATEMENT
     st.markdown("""
     <div class='opening-statement'>
     The future is now — and it's personal.<br><br>
@@ -153,7 +167,20 @@ if st.session_state.current_page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### MEET THE LIFESTYLE TEAM")
+    # TOP NAVIGATION TABS — "Meet the Agents"
+    st.markdown("### Meet the Agents")
+    tab1, tab2, tab3, tab4 = st.tabs(["Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
+
+    with tab1:
+        navigate_to("fred")
+    with tab2:
+        navigate_to("greg")
+    with tab3:
+        navigate_to("zoey")
+    with tab4:
+        navigate_to("nora")
+
+    st.markdown("### Or choose below:")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
 
     cols = st.columns(4)
@@ -216,14 +243,3 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
-
-
-
-
-
-
-
-
-
-
-

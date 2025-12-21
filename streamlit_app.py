@@ -117,23 +117,20 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 
-    st.image("https://i.postimg.cc/tgsgw1dW/image.jpg", caption="Your Longevity Blueprint")
-    # After the CSS and before "How It Works"
-
-    st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
-
-     # VIDEO EMBED — centered and responsive
+    # VIDEO EMBED — centered, responsive, autoplay muted loop
     st.markdown("""
-<div style="display: flex; justify-content: center; margin: 40px 0;">
-    <iframe width="800" height="450" src="https://www.youtube.com/embed/Fxl0KSgsBck" 
-            title="LBL Lifestyle Solutions Intro" frameborder="0" 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-            allowfullscreen></iframe>
-</div>
-""", unsafe_allow_html=True)
+    <div style="display: flex; justify-content: center; margin: 40px 0;">
+        <iframe width="800" height="450" src="https://www.youtube.com/embed/Fxl0KSgsBck?autoplay=1&mute=1&loop=1&playlist=Fxl0KSgsBck" 
+                title="LBL Lifestyle Solutions – Meet Your AI Longevity Team" frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen></iframe>
+    </div>
+    """, unsafe_allow_html=True)
 
-st.markdown("<p style='text-align:center; font-size:1.2rem; color:#0c4a6e;'>Meet your AI Longevity Team: Fred, Greg, Nurse Zoey Zoe, and Nora</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:1.4rem; color:#2d6a4f; margin: 30px 0;'>Meet your AI Longevity Team: Fred, Greg, Nurse Zoey Zoe, and Nora</p>", unsafe_allow_html=True)
+
+    st.image("https://i.postimg.cc/tgsgw1dW/image.jpg", caption="Your Longevity Blueprint")
+
     st.markdown("<h2 class='motivation-header'>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
     <div class='motivation-text'>
@@ -203,4 +200,3 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
-

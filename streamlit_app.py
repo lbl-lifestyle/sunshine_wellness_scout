@@ -68,6 +68,24 @@ if st.session_state.current_page == "home":
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
             color: #1e3a2f;
         }
+        .opening-statement strong {
+            color: #2d6a4f;
+            font-weight: 600;
+        }
+        .motivation-header {
+            font-size: 2rem;
+            text-align: center;
+            margin: 2rem 0 1rem 0;
+        }
+        .motivation-text {
+            text-align: center;
+            font-size: 1.4rem;
+            line-height: 1.9;
+            margin: 2rem 0 3rem 0;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
         .agent-name {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
@@ -91,6 +109,13 @@ if st.session_state.current_page == "home":
             margin: 1rem 0;
             font-style: italic;
         }
+        .agent-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: center;
+            min-height: 120px;
+            margin: 1rem 0;
+        }
         .stButton>button {
             background-color: #2d6a4f;
             color: white;
@@ -109,7 +134,7 @@ if st.session_state.current_page == "home":
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
-        /* Top navigation tabs styling */
+        /* Top tabs styling */
         .stTabs [data-baseweb="tab-list"] {
             gap: 20px;
             justify-content: center;
@@ -130,7 +155,7 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 
-    # VIDEO EMBED (Version 1 — muted, looping)
+    # VIDEO EMBED — clean, looping, muted autoplay, no distractions
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <iframe width="800" height="450"
@@ -143,7 +168,7 @@ if st.session_state.current_page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    # OPENING STATEMENT
+    # VERSION 1 OPENING STATEMENT
     st.markdown("""
     <div class='opening-statement'>
     The future is now — and it's personal.<br><br>
@@ -159,7 +184,7 @@ if st.session_state.current_page == "home":
 
     st.markdown("<h2>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
-    <div style='text-align: center; font-size: 1.4rem; line-height: 1.9; max-width: 900px; margin: auto;'>
+    <div class='motivation-text'>
     1. **Choose Your Agent** – Click one of the team members below to get started.<br><br>
     2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
     3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>

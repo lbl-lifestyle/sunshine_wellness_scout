@@ -88,13 +88,10 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Scroll to top
+    # Force scroll to top
     st.markdown("""
     <script>
-        window.scrollTo(0, 0);
-        const mainSection = window.parent.document.querySelector('section.main');
-        if (mainSection) mainSection.scrollTop = 0;
-        setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
+        window.parent.document.querySelector('section.main').scrollTop = 0;
     </script>
     """, unsafe_allow_html=True)
 
@@ -287,7 +284,7 @@ User name: {st.session_state.user_name}
 Client profile:
 Age: {age}
 Goals: {', '.join(goals)}
-Dietary preferences: {', '.join(selected_dietary) or 'Balanced omnivore'}
+Dietary preferences: {', '.join(selected_dietary) or 'No restrictions'}
 Macro targets: {macro_input or 'Balanced default'}
 Allergies: {allergies or 'None'}
 Budget: {budget_level}

@@ -123,7 +123,7 @@ if st.session_state.current_page == "home":
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <iframe width="800" height="450" 
-                src="https://www.youtube.com/embed/IhiRZbkENGo?autoplay=1&mute=0&loop=1&playlist=IhiRZbkENGo&controls=1&rel=0&modestbranding=1&playsinline=1&end=28" 
+                src="https://www.youtube.com/embed/IhiRZbkENGo?autoplay=1&mute=0&controls=0&rel=0&modestbranding=1&playsinline=1&end=5" 
                 title="LBL Lifestyle Solutions – Live Better Longer" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
@@ -131,7 +131,7 @@ if st.session_state.current_page == "home":
     </iframe>
     </div>
     """, unsafe_allow_html=True)
-       
+         
     
     # VERSION 1 OPENING STATEMENT
     st.markdown("""
@@ -220,6 +220,7 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
+
 
 
 

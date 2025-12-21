@@ -11,13 +11,13 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"greg": []}
 
-    # NEW PROFESSIONAL DESIGN
+    # PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
         
         .stApp {
-            background: linear-gradient(to bottom, #f8f9fa, #e6f0fa);
+            background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
             color: #1e3a2f;
             font-family: 'Inter', sans-serif;
         }
@@ -26,26 +26,45 @@ def show():
             color: #2d6a4f;
             font-weight: 600;
         }
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div,
+        .stSlider > div > div > div {
+            border: 2px solid #a0c4d8 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+            background-color: white !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        }
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: #2d6a4f !important;
+        }
+        .optional-box {
+            background-color: #f0f7fc !important;
+            border: 2px solid #a0c4d8 !important;
+            border-left: 6px solid #2d6a4f !important;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+        label {
+            font-weight: 600 !important;
+            color: #2d6a4f !important;
+            font-size: 1.05rem !important;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
+        }
         .stButton>button {
             background-color: #2d6a4f;
             color: white;
             border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            height: 3.5em;
-            border: none;
-            box-shadow: 0 4px 8px rgba(45, 106, 79, 0.2);
         }
         .stButton>button:hover {
             background-color: #40916c;
-        }
-        .stSuccess, .stInfo {
-            background-color: #d8f0e6;
-            border-left: 5px solid #40916c;
-        }
-        .stWarning {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
         }
         img {
             border-radius: 16px;
@@ -78,6 +97,16 @@ def show():
 
     # Disclaimer
     st.warning("**Important**: I am not a certified personal trainer or medical professional. My suggestions are general wellness education. Always consult a qualified trainer or doctor before starting a new exercise program, especially if you have injuries or conditions.")
+
+    # Quick Start Ideas
+    with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
+        st.markdown("""
+        Here are popular ways users get started:
+        - Build a 3-day home workout for busy parents
+        - Create a plan for beginners with bad knees
+        - Add mobility work to my current routine
+        - Design a program for better sleep and energy
+        """)
 
     # Encouraging input
     st.markdown("### Tell Greg a little bit about you and your fitness goals")
@@ -189,7 +218,16 @@ Be encouraging but realistic, emphasize form and safety.
 
                 st.session_state.full_plan_for_email = full_plan
 
-                st.info("📧 Want the **complete version** with every section? Fill in the email form below to get it instantly!")
+                st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
+
+                # Follow-up suggestions
+                st.markdown("### Would you like me to...")
+                st.markdown("""
+                - Adjust this plan for injuries or equipment?
+                - Add nutrition tips (ask Nora)?
+                - Create a mobility-focused version?
+                - Make a travel-friendly routine?
+                """)
             except Exception as e:
                 st.error("Greg is pumping iron... try again soon.")
                 st.caption(f"Error: {str(e)}")

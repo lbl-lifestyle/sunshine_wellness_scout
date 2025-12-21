@@ -77,13 +77,13 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"fred": []}
 
-    # NEW PROFESSIONAL DESIGN
+    # PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
         
         .stApp {
-            background: linear-gradient(to bottom, #f8f9fa, #e6f0fa);
+            background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
             color: #1e3a2f;
             font-family: 'Inter', sans-serif;
         }
@@ -92,26 +92,45 @@ def show():
             color: #2d6a4f;
             font-weight: 600;
         }
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div,
+        .stSlider > div > div > div {
+            border: 2px solid #a0c4d8 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+            background-color: white !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
+        }
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: #2d6a4f !important;
+        }
+        .optional-box {
+            background-color: #f0f7fc !important;
+            border: 2px solid #a0c4d8 !important;
+            border-left: 6px solid #2d6a4f !important;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+        label {
+            font-weight: 600 !important;
+            color: #2d6a4f !important;
+            font-size: 1.05rem !important;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
+        }
         .stButton>button {
             background-color: #2d6a4f;
             color: white;
             border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            height: 3.5em;
-            border: none;
-            box-shadow: 0 4px 8px rgba(45, 106, 79, 0.2);
         }
         .stButton>button:hover {
             background-color: #40916c;
-        }
-        .stSuccess, .stInfo {
-            background-color: #d8f0e6;
-            border-left: 5px solid #40916c;
-        }
-        .stWarning {
-            background-color: #fff3cd;
-            border-left: 5px solid #ffc107;
         }
         img {
             border-radius: 16px;
@@ -143,6 +162,16 @@ def show():
     st.write("I'm here to help you find or create a home environment that actively supports your health, recovery, and longevity — anywhere in the U.S.")
     st.warning("**Important**: I am not a licensed real estate agent. My recommendations are general wellness education based on research and trends. Always consult a licensed professional for real estate decisions.")
     st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
+
+    # Quick Start Ideas
+    with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
+        st.markdown("""
+        Here are popular ways users get started:
+        - Find quiet neighborhoods with trails near Tampa
+        - Suggest homes with gym space under $600k
+        - Compare walkability in Asheville vs Sarasota
+        - Modify my current home for aging in place
+        """)
 
     # Encouraging input
     st.markdown("### Tell Fred a little bit about you and your dream wellness home")
@@ -284,6 +313,15 @@ Example day.
                     st.session_state.full_report_for_email = full_report_with_images
 
                     st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
+
+                    # Follow-up suggestions
+                    st.markdown("### Would you like me to...")
+                    st.markdown("""
+                    - Refine this for a different budget or location?
+                    - Add more community/social details?
+                    - Suggest home modifications for better wellness?
+                    - Coordinate with Greg for a home gym setup?
+                    """)
                 except Exception as e:
                     st.error("Fred is reviewing listings... try again soon.")
                     st.caption(f"Error: {str(e)}")

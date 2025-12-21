@@ -11,7 +11,7 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"nora": []}
 
-    # PROFESSIONAL DESIGN
+    # HIGH-CONTRAST PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -28,17 +28,32 @@ def show():
         }
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea,
-        .stSelectbox > div > div,
-        .stSlider > div > div > div {
+        .stSelectbox > div > div > div[data-baseweb="select"] > div,
+        .stNumberInput > div > div > input {
+            background-color: white !important;
+            color: #1e3a2f !important;
             border: 2px solid #a0c4d8 !important;
             border-radius: 10px !important;
             padding: 12px !important;
-            background-color: white !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
         }
         .stTextInput > div > div > input:focus,
         .stTextArea > div > div > textarea:focus {
             border-color: #2d6a4f !important;
+        }
+        div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: #1e3a2f !important;
+        }
+        .stChatInput > div {
+            background-color: white !important;
+            border: 2px solid #2d6a4f !important;
+            border-radius: 20px !important;
+        }
+        .stChatInput > div > div > input {
+            color: #1e3a2f !important;
+        }
+        .stChatMessage {
+            background-color: transparent !important;
         }
         .optional-box {
             background-color: #f0f7fc !important;
@@ -77,13 +92,13 @@ def show():
     st.markdown("""
     <script>
         window.scrollTo(0, 0);
-        const mainSection = window.parent.document.query_selector('section.main');
+        const mainSection = window.parent.document.querySelector('section.main');
         if (mainSection) mainSection.scrollTop = 0;
         setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
     </script>
     """, unsafe_allow_html=True)
 
-    # Back button — unique key
+    # Back button
     if st.button("← Back to Team", key="nora_back_button"):
         st.session_state.current_page = "home"
         st.rerun()
@@ -91,9 +106,11 @@ def show():
     # Hero image
     st.image("https://i.postimg.cc/cJqPm9BP/pexels-tessy-agbonome-521343232-18252407.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
 
+    # Welcome & Disclaimer
     st.markdown("### 🥗 HI! I'M NORA – Your Nutrition Coach for Longevity")
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.write("I help you build sustainable, delicious eating habits that fit your life — focusing on balance, joy, and long-term health, tailored to your preferences.")
+    st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
 
     # Name Input
     st.markdown("### What's your name?")
@@ -119,7 +136,7 @@ def show():
     st.write("**Be as detailed as possible!** The more you share about your age, goals, preferences, allergies, budget, and current diet, the better Nora can help. 😊")
     st.caption("💡 Tip: Include favorite foods, foods to avoid, cooking time available, and health priorities!")
 
-    age = st.slider("Your age", 18, 80, 45)
+    age = st.number_input("Your age", min_value=18, max_value=100, value=45, step=1)
 
     # Goals + Notes
     goals = st.multiselect("PRIMARY NUTRITION GOALS", ["Longevity/anti-aging", "Energy & vitality", "Heart health", "Weight management", "Gut health", "Brain health", "Muscle maintenance", "General wellness"])
@@ -144,7 +161,7 @@ def show():
     selected_dietary = st.multiselect(
         "DIETARY PREFERENCES (hover for details)",
         options=[opt[0] for opt in dietary_options],
-        default=["Omnivore"],
+        default=["No restrictions"],
         help="Hover over options for benefits & considerations"
     )
 
@@ -277,6 +294,8 @@ Budget: {budget_level}
 Cooking time: {cooking_time}
 Greg's plan: {greg_plan_text or 'None provided'}
 
+You are Nora, a warm, evidence-based nutrition coach focused on sustainable, enjoyable eating for long-term health.
+
 Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health — adapt to user's stated preferences.
 """
 
@@ -284,7 +303,7 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 # Display plan
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[{"role": "system", "content": "You are Nora, a warm, evidence-based nutrition coach focused on longevity and joy in eating."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
+                    messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
                     max_tokens=2500,
                     temperature=0.7
                 )
@@ -293,7 +312,7 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 # Full plan for email
                 full_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[{"role": "system", "content": "You are Nora, a warm, evidence-based nutrition coach focused on longevity and joy in eating."}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
+                    messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
                     max_tokens=3500,
                     temperature=0.7
                 )
@@ -364,7 +383,7 @@ Nora & the LBL Team"""
                         st.error(f"Send error: {str(e)}")
 
     # Streamlined chat
-    st.markdown("### Have a follow-up question? Chat with Nora below!")
+    st.markdown("### Have a follow-up question? Chat with Nora in the box below! 🥗")
     st.caption("Ask about recipes, substitutions, meal ideas — anything!")
 
     for msg in st.session_state.chat_history["nora"]:

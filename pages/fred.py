@@ -143,7 +143,7 @@ def show():
     st.markdown("""
     <script>
         window.scrollTo(0, 0);
-        const mainSection = window.parent.document.querySelector('section.main');
+        const mainSection = window.parent.document.query_selector('section.main');
         if (mainSection) mainSection.scrollTop = 0;
         setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
     </script>
@@ -162,6 +162,15 @@ def show():
     st.write("I'm here to help you find or create a home environment that actively supports your health, recovery, and longevity — anywhere in the U.S.")
     st.warning("**Important**: I am not a licensed real estate agent. My recommendations are general wellness education based on research and trends. Always consult a licensed professional for real estate decisions.")
     st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
+
+    # Name Input
+    st.markdown("### What's your name?")
+    st.write("So I can make this feel more personal 😊")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="fred_name_input")
+    if user_name:
+        st.session_state.user_name = user_name.strip()
+    else:
+        st.session_state.user_name = "there"
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
@@ -274,15 +283,16 @@ Example day.
 """
 
                 base_prompt = f"""
-                Client description:
-                {client_needs}
-                Budget: ${budget:,}
-                Preferred location(s): {location or 'wellness-friendly areas across the U.S.'}
+User name: {st.session_state.user_name}
+Client description:
+{client_needs}
+Budget: ${budget:,}
+Preferred location(s): {location or 'wellness-friendly areas across the U.S.'}
 
-                You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States.
+You are Fred, a professional goal-focused real estate advisor specializing in wellness and active lifestyle properties across the United States.
 
-                Use warm, encouraging, insightful language.
-                """
+Use warm, encouraging, insightful language.
+"""
 
                 try:
                     # Display report
@@ -339,7 +349,7 @@ Example day.
                     st.error("Email required!")
                 else:
                     report_to_send = st.session_state.full_report_for_email
-                    email_body = f"""Hi {name or 'there'},
+                    email_body = f"""Hi {st.session_state.user_name},
 
 Thank you for exploring LBL Lifestyle Solutions – Your Holistic Longevity Blueprint.
 
@@ -355,7 +365,7 @@ Fred & the LBL Team"""
                         "from": "reports@lbllifestyle.com",
                         "to": [email],
                         "cc": [YOUR_EMAIL],
-                        "subject": f"{name or 'Client'}'s Complete LBL Wellness Home Report",
+                        "subject": f"{st.session_state.user_name or 'Client'}'s Complete LBL Wellness Home Report",
                         "text": email_body
                     }
                     headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}

@@ -11,7 +11,7 @@ def show():
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"greg": []}
 
-    # PROFESSIONAL DESIGN
+    # HIGH-CONTRAST PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -28,17 +28,32 @@ def show():
         }
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea,
-        .stSelectbox > div > div,
-        .stSlider > div > div > div {
+        .stSelectbox > div > div > div[data-baseweb="select"] > div,
+        .stNumberInput > div > div > input {
+            background-color: white !important;
+            color: #1e3a2f !important;
             border: 2px solid #a0c4d8 !important;
             border-radius: 10px !important;
             padding: 12px !important;
-            background-color: white !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
         }
         .stTextInput > div > div > input:focus,
         .stTextArea > div > div > textarea:focus {
             border-color: #2d6a4f !important;
+        }
+        div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: #1e3a2f !important;
+        }
+        .stChatInput > div {
+            background-color: white !important;
+            border: 2px solid #2d6a4f !important;
+            border-radius: 20px !important;
+        }
+        .stChatInput > div > div > input {
+            color: #1e3a2f !important;
+        }
+        .stChatMessage {
+            background-color: transparent !important;
         }
         .optional-box {
             background-color: #f0f7fc !important;
@@ -77,13 +92,13 @@ def show():
     st.markdown("""
     <script>
         window.scrollTo(0, 0);
-        const mainSection = window.parent.document.query_selector('section.main');
+        const mainSection = window.parent.document.querySelector('section.main');
         if (mainSection) mainSection.scrollTop = 0;
         setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
     </script>
     """, unsafe_allow_html=True)
 
-    # Back button — unique key
+    # Back button
     if st.button("← Back to Team", key="greg_back_button"):
         st.session_state.current_page = "home"
         st.rerun()
@@ -95,7 +110,7 @@ def show():
     st.markdown("### 💪 HI!!! I'M GREG – Your Awesome Personal Trainer. GET SOME!!!!")
     st.write("I'm a motivated gym rat helping you build strength, endurance, and longevity. Let's get started by building you a personalized workout routine. Congratulations on choosing a longevity lifestyle. Your future self will thank you!")
     st.warning("**Important**: I am not a certified personal trainer or medical professional. My suggestions are general wellness education. Always consult a qualified trainer or doctor before starting a new exercise program, especially if you have injuries or conditions.")
-    st.success("**This tool is completely free – no cost, no obligation! You full plan will be emailed if requested.**")
+    st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
 
     # Name Input
     st.markdown("### What's your name?")
@@ -121,7 +136,7 @@ def show():
     st.write("**Be as detailed as possible!** The more you share about your age, current fitness level, injuries, available equipment, schedule, and specific goals, the better and safer Greg's plan will be. 😊")
     st.caption("💡 Tip: Include age, injuries, equipment at home/gym, days per week you can train, and what motivates you!")
 
-    age = st.slider("Your age", 18, 80, 45)
+    age = st.number_input("Your age", min_value=18, max_value=100, value=45, step=1)
     fitness_level = st.selectbox("CURRENT FITNESS LEVEL", ["Beginner", "Intermediate", "Advanced"])
     goals = st.multiselect("PRIMARY GOALS", ["Build strength", "Improve endurance", "Lose fat", "Gain muscle", "Increase flexibility", "Better mobility", "General wellness"])
     equipment = st.multiselect("AVAILABLE EQUIPMENT", ["None (bodyweight only)", "Dumbbells", "Resistance bands", "Kettlebell", "Pull-up bar", "Stability ball", "Full home gym", "Community gym free weights", "Community gym resistance machines"])
@@ -191,14 +206,17 @@ Next phases.
 
             base_prompt = f"""
 User name: {st.session_state.user_name}
-Client description:
-{client_needs}
-Budget: ${budget:,}
-Preferred location(s): {location or 'wellness-friendly areas across the U.S.'}
+Client profile:
+Age: {age}
+Fitness level: {fitness_level}
+Goals: {', '.join(goals)}
+Equipment: {', '.join(equipment) or 'Bodyweight only'}
+Injuries: {injuries or 'None'}
+Training {days_per_week} days/week, {session_length} sessions
 
 You are Greg, an energetic, motivating, and knowledgeable personal trainer focused on sustainable strength, mobility, and longevity for people over 40.
 
-Use warm, encouraging, insightful language.
+Be encouraging but realistic, emphasize form and safety.
 """
 
             try:
@@ -285,7 +303,7 @@ Greg & the LBL Team"""
                         st.error(f"Send error: {str(e)}")
 
     # Streamlined chat
-    st.markdown("### Have a follow-up question? Chat with Greg below!")
+    st.markdown("### Have a follow-up question? Chat with Greg in the box below! 💪")
     st.caption("Ask about form, modifications, motivation — anything!")
 
     for msg in st.session_state.chat_history["greg"]:

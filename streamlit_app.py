@@ -119,15 +119,11 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
     
-    # VIMEO HERO VIDEO — clean, looping, muted autoplay, no distractions
+    # Version 2: Unmuted, play once, standard spacing (sound on — may need tap on iOS)
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
-        <iframe src="https://player.vimeo.com/video/1148502814?autoplay=1&loop=1&muted=1&background=1&title=0&byline=0&portrait=0" 
-                width="800" 
-                height="450" 
-                frameborder="0" 
-                allow="autoplay; fullscreen" 
-                allowfullscreen>
+        <iframe src="https://player.vimeo.com/video/1148502814?autoplay=1&muted=0&background=0&title=0&byline=0&portrait=0" 
+                width="800" height="450" frameborder="0" allow="autoplay; fullscreen" allowfullscreen>
         </iframe>
     </div>
     """, unsafe_allow_html=True)
@@ -220,6 +216,7 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
+
 
 
 

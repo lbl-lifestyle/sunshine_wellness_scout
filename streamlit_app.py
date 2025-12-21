@@ -118,20 +118,20 @@ if st.session_state.current_page == "home":
 
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
-
+    
     # NEW VIDEO EMBED — clean, looping, no distractions
     st.markdown("""
-    <div style="display: flex; justify-content: center; margin: 40px 0;">
+    <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <iframe width="800" height="450" 
-                src="https://www.youtube.com/embed/IhiRZbkENGo?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&end=29" 
-                title="LBL Lifestyle Solutions – Live Better Longer" 
+                src="https://www.youtube.com/embed/IhiRZbkENGo?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&end=29" 
+                title="LBL Lifestyle Solutions" 
                 frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allow="autoplay; encrypted-media" 
                 allowfullscreen>
     </iframe>
     </div>
     """, unsafe_allow_html=True)
-
+   
     
     # VERSION 1 OPENING STATEMENT
     st.markdown("""
@@ -220,5 +220,6 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
+
 
 

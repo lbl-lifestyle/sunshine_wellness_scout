@@ -7,6 +7,9 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
+    # Set page title
+    st.set_page_config(page_title="Greg – Your Personal Trainer | LBL Lifestyle Solutions", page_icon="💪")
+
     # Initialize chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"greg": []}
@@ -107,7 +110,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input_unique")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:

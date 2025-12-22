@@ -20,7 +20,7 @@ if st.session_state.current_page not in ["home", "fred", "greg", "zoey", "nora"]
 
 def navigate_to(page: str):
     st.session_state.current_page = page
-    st.experimental_rerun()  # Force clean reload
+    st.rerun()  # <-- This is the modern way
 
 # ===================================================
 # HOME PAGE
@@ -217,3 +217,4 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
+

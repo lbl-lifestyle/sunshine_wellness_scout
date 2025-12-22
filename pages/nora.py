@@ -110,7 +110,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="nora_name_input_unique")
+    user_name = st.text_input("Your first name (optional – Nora)", value=st.session_state.get("user_name", ""), key="nora_name_input")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:

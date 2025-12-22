@@ -28,7 +28,7 @@ def navigate_to(page: str):
 # ===================================================
 
 if st.session_state.current_page == "home":
-    st.set_page_config(page_title="LBL Lifestyle Solutions – Live Better Longer", page_icon="❤️")
+    st.set_page_config(page_title="Home Page – LBL Lifestyle Solutions", page_icon="❤️")
 
     st.markdown("""
     <style>
@@ -137,7 +137,7 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 
-    # VIDEO EMBED — current version (clean, looping, muted)
+    # VIDEO EMBED — clean, looping, muted autoplay, no distractions
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <iframe width="800" height="450"

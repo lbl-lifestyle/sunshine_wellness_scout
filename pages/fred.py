@@ -1,5 +1,3 @@
-# pages/fred.py
-
 import streamlit as st
 import requests
 from openai import OpenAI
@@ -75,11 +73,14 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
     return '\n'.join(enhanced_lines)
 
 def show():
+    # Set page title
+    st.set_page_config(page_title="Fred – Your Wellness Home Scout | LBL Lifestyle Solutions", page_icon="🏡")
+
     # Initialize chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"fred": []}
 
-    # HIGH-CONTRAST PROFESSIONAL DESIGN
+    # PROFESSIONAL DESIGN
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -96,13 +97,13 @@ def show():
         }
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea,
-        .stSelectbox > div > div,
-        .stSlider > div > div > div {
+        .stSelectbox > div > div > div[data-baseweb="select"] > div,
+        .stNumberInput > div > div > input {
+            background-color: white !important;
+            color: #1e3a2f !important;
             border: 2px solid #a0c4d8 !important;
             border-radius: 10px !important;
             padding: 12px !important;
-            background-color: white !important;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05) !important;
         }
         .stTextInput > div > div > input:focus,
         .stTextArea > div > div > textarea:focus {
@@ -164,7 +165,7 @@ def show():
     """, unsafe_allow_html=True)
 
     # Hero image
-    st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg-J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
+    st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg_J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 
     # Welcome & Disclaimer
     st.markdown("### 🏡 Hello! I'm Fred – Your Wellness Home Scout")
@@ -175,7 +176,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="fred_name_input")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="fred_name_input_unique")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:
@@ -348,7 +349,7 @@ Use warm, encouraging, insightful language.
     # Email form
     if "full_report_for_email" in st.session_state:
         st.markdown("### Get Your Full Report Emailed (Save & Share)")
-        with st.form("lead_form", clear_on_submit=True):
+        with st.form("lead_form_fred", clear_on_submit=True):
             name = st.text_input("Your Name")
             email = st.text_input("Email (required)", placeholder="you@example.com")
             phone = st.text_input("Phone (optional)")

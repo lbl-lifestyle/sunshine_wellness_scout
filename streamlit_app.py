@@ -20,15 +20,13 @@ if st.session_state.current_page not in ["home", "fred", "greg", "zoey", "nora"]
 
 def navigate_to(page: str):
     st.session_state.current_page = page
-    st.rerun()
+    st.experimental_rerun()  # Force clean reload
 
 # ===================================================
 # HOME PAGE
 # ===================================================
 
 if st.session_state.current_page == "home":
-    st.set_page_config(page_title="LBL Lifestyle Solutions – Live Better Longer", page_icon="❤️")
-
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -38,75 +36,61 @@ if st.session_state.current_page == "home":
             color: #1e3a2f;
             font-family: 'Inter', sans-serif;
         }
-        h1, h2, h3, .main-header {
+        h1, h2, h3 {
             font-family: 'Playfair Display', serif;
             color: #2d6a4f;
             font-weight: 600;
         }
-        .main-header {
-            font-size: 4.2rem;
-            text-align: center;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.2);
-            margin-bottom: 0.5rem;
+        /* Force consistent input styling across devices */
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div > div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: #1e3a2f !important;
+            border: 2px solid #a0c4d8 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
         }
-        .tagline {
-            font-size: 2.8rem;
-            color: #40916c;
-            text-align: center;
-            font-style: italic;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            margin-bottom: 3rem;
+        /* Dropdown selected item visible */
+        div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: #1e3a2f !important;
+        }
+        /* Chat input — light, visible, with emoji */
+        .stChatInput > div {
+            background-color: white !important;
+            border: 2px solid #2d6a4f !important;
+            border-radius: 20px !important;
+        }
+        .stChatInput > div > div > input {
+            color: #1e3a2f !important;
+        }
+        /* Remove any overlay issues */
+        .stChatMessage {
+            background-color: transparent !important;
+        }
+        .optional-box {
+            background-color: #f0f7fc !important;
+            border: 2px solid #a0c4d8 !important;
+            border-left: 6px solid #2d6a4f !important;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 25px;
+        }
+        label {
             font-weight: 600;
-        }
-        .opening-statement {
-            font-size: 1.35rem;
-            line-height: 1.8;
-            text-align: center;
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: rgba(255, 255, 255, 0.7);
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-            color: #1e3a2f;
-        }
-        .opening-statement strong {
             color: #2d6a4f;
-            font-weight: 600;
-        }
-        .agent-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            color: #2d6a4f;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .agent-subtitle {
-            font-weight: bold;
-            font-size: 1.4rem;
-            color: #2d6a4f;
-            text-align: center;
-            margin: 0.5rem 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .agent-examples {
             font-size: 1.05rem;
-            color: #1e3a2f;
-            text-align: center;
-            margin: 1rem 0;
-            font-style: italic;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
         }
         .stButton>button {
             background-color: #2d6a4f;
             color: white;
             border-radius: 12px;
             font-weight: 600;
-            font-size: 1.1rem;
-            height: 3.5em;
-            width: 100%;
-            border: none;
-            box-shadow: 0 4px 8px rgba(45, 106, 79, 0.2);
         }
         .stButton>button:hover {
             background-color: #40916c;
@@ -136,20 +120,17 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 
-    # VIDEO EMBED
+    # VIDEO EMBED — clean, looping, no distractions
     st.markdown("""
-    <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
-        <iframe width="800" height="450"
-                src="https://player.vimeo.com/video/1148502814?autoplay=1&muted=1&background=1&title=0&byline=0&portrait=0"
-                title="LBL Lifestyle Solutions – Your Longevity Team"
-                frameborder="0"
-                allow="autoplay; fullscreen"
-                allowfullscreen>
-        </iframe>
+    <div style="display: flex; justify-content: center; margin: 40px 0;">
+        <iframe width="800" height="450" src="https://www.youtube.com/embed/Fxl0KSgsBck?autoplay=1&mute=1&loop=1&playlist=Fxl0KSgsBck" 
+                title="LBL Lifestyle Solutions – Meet Your AI Longevity Team" frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen></iframe>
     </div>
     """, unsafe_allow_html=True)
 
-    # OPENING STATEMENT
+    # VERSION 1 OPENING STATEMENT
     st.markdown("""
     <div class='opening-statement'>
     The future is now — and it's personal.<br><br>
@@ -173,23 +154,7 @@ if st.session_state.current_page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    # TOP NAVIGATION TABS
-    st.markdown("### Meet the Agents")
-    tab_home, tab_fred, tab_greg, tab_zoey, tab_nora = st.tabs(["Home", "Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
-
-    with tab_home:
-        st.info("You're already on the home page! Scroll up to explore.")
-    with tab_fred:
-        navigate_to("fred")
-    with tab_greg:
-        navigate_to("greg")
-    with tab_zoey:
-        navigate_to("zoey")
-    with tab_nora:
-        navigate_to("nora")
-
-    # Agent cards
-    st.markdown("### Or choose below:")
+    st.markdown("### MEET THE LIFESTYLE TEAM")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
 
     cols = st.columns(4)

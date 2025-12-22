@@ -183,7 +183,7 @@ if st.session_state.current_page == "home":
     with tab_nora:
         navigate_to("nora")
 
-    # AGENT CARDS — for explanation only (no buttons)
+    # AGENT CARDS — full original style (no buttons)
     st.markdown("### Meet your longevity team")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Use the tabs above to chat with any agent</p>", unsafe_allow_html=True)
 

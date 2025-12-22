@@ -18,6 +18,10 @@ if "current_page" not in st.session_state:
 if st.session_state.current_page not in ["home", "fred", "greg", "zoey", "nora"]:
     st.session_state.current_page = "home"
 
+# ===================================================
+# NAVIGATION FUNCTION
+# ===================================================
+
 def navigate_to(page: str):
     st.session_state.current_page = page
     st.rerun()
@@ -72,20 +76,6 @@ if st.session_state.current_page == "home":
             color: #2d6a4f;
             font-weight: 600;
         }
-        .motivation-header {
-            font-size: 2rem;
-            text-align: center;
-            margin: 2rem 0 1rem 0;
-        }
-        .motivation-text {
-            text-align: center;
-            font-size: 1.4rem;
-            line-height: 1.9;
-            margin: 2rem 0 3rem 0;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
         .agent-name {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
@@ -108,13 +98,6 @@ if st.session_state.current_page == "home":
             text-align: center;
             margin: 1rem 0;
             font-style: italic;
-        }
-        .agent-desc {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            text-align: center;
-            min-height: 120px;
-            margin: 1rem 0;
         }
         .stButton>button {
             background-color: #2d6a4f;
@@ -155,7 +138,7 @@ if st.session_state.current_page == "home":
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
 
-    # VIDEO EMBED — clean, looping, muted autoplay, no distractions
+    # VIDEO EMBED
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
         <iframe width="800" height="450"
@@ -168,7 +151,7 @@ if st.session_state.current_page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    # VERSION 1 OPENING STATEMENT
+    # OPENING STATEMENT
     st.markdown("""
     <div class='opening-statement'>
     The future is now — and it's personal.<br><br>
@@ -184,7 +167,7 @@ if st.session_state.current_page == "home":
 
     st.markdown("<h2>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
-    <div class='motivation-text'>
+    <div style='text-align: center; font-size: 1.4rem; line-height: 1.9; max-width: 900px; margin: auto;'>
     1. **Choose Your Agent** – Click one of the team members below to get started.<br><br>
     2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
     3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>
@@ -192,19 +175,20 @@ if st.session_state.current_page == "home":
     </div>
     """, unsafe_allow_html=True)
 
-    # TOP NAVIGATION TABS — "Meet the Agents"
+    # TOP NAVIGATION TABS — "Meet the Agents" (main navigation)
     st.markdown("### Meet the Agents")
-    tab1, tab2, tab3, tab4 = st.tabs(["Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
+    tab_fred, tab_greg, tab_zoey, tab_nora = st.tabs(["Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
 
-    with tab1:
+    with tab_fred:
         navigate_to("fred")
-    with tab2:
+    with tab_greg:
         navigate_to("greg")
-    with tab3:
+    with tab_zoey:
         navigate_to("zoey")
-    with tab4:
+    with tab_nora:
         navigate_to("nora")
 
+    # Agent cards — now just trigger the corresponding tab
     st.markdown("### Or choose below:")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Click an agent to begin your longevity journey</p>", unsafe_allow_html=True)
 
@@ -250,7 +234,7 @@ if st.session_state.current_page == "home":
     st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
 
 # ===================================================
-# AGENT PAGES
+# AGENT PAGES — Remove back buttons (use top tabs only)
 # ===================================================
 
 elif st.session_state.current_page == "fred":

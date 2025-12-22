@@ -95,11 +95,6 @@ def show():
     </script>
     """, unsafe_allow_html=True)
 
-    # Back button
-     if st.button("← Back to Home (Greg)", key="greg_back_button"):
-        st.session_state.current_page = "home"
-        st.rerun()
-
     # Hero image
     st.image("https://i.postimg.cc/mDy2FKQg/outdoor-fitness-scaled.webp", caption="Greatness Await – Welcome to your longevity lifestyle")
 

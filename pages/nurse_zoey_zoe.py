@@ -95,11 +95,6 @@ def show():
     </script>
     """, unsafe_allow_html=True)
 
-    # Back button
-    if st.button("← Back to Home (Zoey)", key="zoey_back_button"):
-        st.session_state.current_page = "home"
-        st.rerun()
-
     # Hero image
     st.image("https://i.postimg.cc/BnFgfCTD/pexels-kampus-7551620.jpg", caption="LIVE BETTER LONGER – Welcome to your longevity lifestyle")
 

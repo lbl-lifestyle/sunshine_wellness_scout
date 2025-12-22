@@ -161,19 +161,17 @@ if st.session_state.current_page == "home":
     st.markdown("<h2>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
     <div style='text-align: center; font-size: 1.4rem; line-height: 1.9; max-width: 900px; margin: auto;'>
-    1. **Choose Your Agent** – Use the tabs above to meet your team.<br><br>
+    1. **Choose Your Agent** – Use the tabs below to meet your team.<br><br>
     2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
     3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>
-    Ready to live better longer? 👆 Use the tabs above to pick an agent!
+    Ready to live better longer? 👇 Use the tabs below to pick an agent!
     </div>
     """, unsafe_allow_html=True)
 
     # TOP NAVIGATION TABS
     st.markdown("### Meet the Agents")
-    tab_home, tab_fred, tab_greg, tab_zoey, tab_nora = st.tabs(["Home", "Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
+    tab_fred, tab_greg, tab_zoey, tab_nora = st.tabs(["Fred", "Greg", "Nurse Zoey Zoe", "Nora"])
 
-    with tab_home:
-        st.info("You're already on the home page! Scroll up to explore.")
     with tab_fred:
         navigate_to("fred")
     with tab_greg:
@@ -183,7 +181,7 @@ if st.session_state.current_page == "home":
     with tab_nora:
         navigate_to("nora")
 
-    # AGENT CARDS — full original style (no buttons)
+    # AGENT CARDS — full display, no buttons
     st.markdown("### Meet your longevity team")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Use the tabs above to chat with any agent</p>", unsafe_allow_html=True)
 

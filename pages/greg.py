@@ -7,9 +7,6 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
-    # Set page title
-    st.set_page_config(page_title="Greg – Your Personal Trainer | LBL Lifestyle Solutions", page_icon="💪")
-
     # Initialize chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"greg": []}
@@ -91,12 +88,20 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Force scroll to top
+    # Scroll to top
     st.markdown("""
     <script>
-        window.parent.document.querySelector('section.main').scrollTop = 0;
+        window.scrollTo(0, 0);
+        const mainSection = window.parent.document.querySelector('section.main');
+        if (mainSection) mainSection.scrollTop = 0;
+        setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
     </script>
     """, unsafe_allow_html=True)
+
+    # Back button
+    if st.button("← Back to Team", key="greg_back_button"):
+        st.session_state.current_page = "home"
+        st.rerun()
 
     # Hero image
     st.image("https://i.postimg.cc/mDy2FKQg/outdoor-fitness-scaled.webp", caption="Greatness Await – Welcome to your longevity lifestyle")
@@ -110,7 +115,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input_unique_v2")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:

@@ -164,7 +164,7 @@ def show():
     """, unsafe_allow_html=True)
 
     # Back button
-    if st.button("← Back to Team", key="fred_back_button"):
+    if st.button("← Back to Home (Fred)", key="fred_back_button"):
         st.session_state.current_page = "home"
         st.rerun()
 

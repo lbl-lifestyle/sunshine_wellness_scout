@@ -7,9 +7,6 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
-    # Set page title
-    st.set_page_config(page_title="Nora – Your Nutrition Coach | LBL Lifestyle Solutions", page_icon="🥗")
-
     # Initialize chat history
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {"nora": []}
@@ -91,12 +88,20 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Force scroll to top
+    # Scroll to top
     st.markdown("""
     <script>
-        window.parent.document.querySelector('section.main').scrollTop = 0;
+        window.scrollTo(0, 0);
+        const mainSection = window.parent.document.querySelector('section.main');
+        if (mainSection) mainSection.scrollTop = 0;
+        setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
     </script>
     """, unsafe_allow_html=True)
+
+    # Back button
+    if st.button("← Back to Team", key="nora_back_button"):
+        st.session_state.current_page = "home"
+        st.rerun()
 
     # Hero image
     st.image("https://i.postimg.cc/cJqPm9BP/pexels-tessy-agbonome-521343232-18252407.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
@@ -110,7 +115,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="nora_name_input_unique_v2")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="nora_name_input")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:
@@ -282,7 +287,7 @@ User name: {st.session_state.user_name}
 Client profile:
 Age: {age}
 Goals: {', '.join(goals)}
-Dietary preferences: {', '.join(selected_dietary) or 'No restrictions'}
+Dietary preferences: {', '.join(selected_dietary) or 'Balanced omnivore'}
 Macro targets: {macro_input or 'Balanced default'}
 Allergies: {allergies or 'None'}
 Budget: {budget_level}
@@ -415,3 +420,12 @@ Nora & the LBL Team"""
     st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
 
 show()
+VIMO VID VER 1>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+# Version 1: Muted, play once, standard spacing (safest for mobile)
+st.markdown("""
+<div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
+    <iframe src="https://player.vimeo.com/video/1148502814?autoplay=1&muted=1&background=1&title=0&byline=0&portrait=0" 
+            width="800" height="450" frameborder="0" allow="autoplay; fullscreen" allowfullscreen>
+    </iframe>
+</div>
+""", unsafe_allow_html=True)

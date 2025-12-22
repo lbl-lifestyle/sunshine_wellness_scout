@@ -163,11 +163,6 @@ def show():
     </script>
     """, unsafe_allow_html=True)
 
-    # Back button
-    if st.button("← Back to Team", key="fred_back_button"):
-        st.session_state.current_page = "home"
-        st.rerun()
-
     # Hero image
     st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg_J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 

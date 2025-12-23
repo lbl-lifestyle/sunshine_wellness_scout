@@ -22,7 +22,7 @@ def show():
     if agent_key not in st.session_state.chat_history:
         st.session_state.chat_history[agent_key] = []
 
-    # PROFESSIONAL DESIGN WITH UPDATED MULTISELECT STYLING
+    # DESIGN WITH UPDATED MULTISELECT STYLING
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -108,7 +108,7 @@ def show():
     st.markdown("### 🥗 Hi! I'm Nora – Your Nutrition Coach for Longevity")
     st.write("Welcome to my kitchen! I'm here to help you build delicious, sustainable eating habits that bring joy and support a longer, healthier life — perfectly tailored to you.")
 
-    # === PERSONALITY CUSTOMIZATION BOX ===
+    # PERSONALITY CUSTOMIZATION BOX
     st.markdown("<div class='personality-box'>", unsafe_allow_html=True)
     st.markdown("#### ✨ Let's Make This Truly Personal!")
 
@@ -158,7 +158,7 @@ The more you select, the more uniquely tailored your meal plan and our conversat
     st.caption("🔮 Your choices will shape both your personalized meal plan and all follow-up chats!")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # === TRAIT MAPPING AND BLENDED PROMPT ===
+    # TRAIT MAPPING AND BLENDED PROMPT
     nora_trait_map = {
         "Witty & Warm Foodie (default)": "You are witty, warm, and passionate about food. Use light food-related puns naturally and joyfully.",
         "Calm & Reassuring": "Use a calm, patient, grounding tone. Focus on reassurance and ease.",
@@ -177,7 +177,6 @@ The more you select, the more uniquely tailored your meal plan and our conversat
         "Gentle & Supportive": "Use soft, empathetic language. Prioritize emotional support and kindness."
     }
 
-    # Build Nora's blended traits
     nora_modifiers = []
     if "Witty & Warm Foodie (default)" in nora_traits:
         nora_modifiers.append(nora_trait_map["Witty & Warm Foodie (default)"])
@@ -201,10 +200,9 @@ Blend these seamlessly while staying joyful and focused on delicious, sustainabl
 Adapt tone in real-time based on user input while honoring the selected traits.
 """
 
-    # Store for use in both report and chat
     st.session_state.nora_personality_prompt = dynamic_personality_prompt
 
-    # === DISCLAIMERS AND SUCCESS MESSAGE ===
+    # DISCLAIMERS
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
 
@@ -217,7 +215,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
     else:
         st.session_state.user_name = st.session_state.get("user_name", "")
 
-    # Quick Start Ideas
+    # Quick Start
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
         st.markdown("""
         Here are popular ways users get started:
@@ -306,9 +304,16 @@ Adapt tone in real-time based on user input while honoring the selected traits.
         default=["Meal Prep Strategies"]
     )
 
-    # === GENERATE PLAN WITH PERSONALITY ===
+    # Initialize session state for report persistence
+    if "display_plan" not in st.session_state:
+        st.session_state.display_plan = None
+    if "full_plan_for_email" not in st.session_state:
+        st.session_state.full_plan_for_email = None
+
+    # === GENERATE PLAN ===
     if st.button("Generate My Custom Meal Plan", type="primary"):
         with st.spinner("Nora is crafting your personalized nutrition plan..."):
+            # Your prompt building logic (unchanged)
             core_prompt = f"""
 ### Weekly Meal Plan
 7-day plan with {meals_per_day} meals/day.
@@ -335,14 +340,21 @@ Key habits this plan supports and why they matter.
             if "Family-Friendly Adaptations" in plan_sections:
                 optional_prompt += "### Family-Friendly Adaptations\nHow to adjust for kids/partners.\n\n"
 
-            full_plan_prompt = core_prompt + optional_prompt + """
+            full_plan_prompt = core_prompt + """
 ### Blue Zones Focus
+Tips and recipes.
 ### Supplement Education (general)
+Overview.
 ### Meal Prep Strategies
+Tips.
 ### Eating Out Tips
+Choices.
 ### Hydration & Beverage Guide
+Drinks.
 ### Seasonal/Longevity Food Focus
+Best foods.
 ### Family-Friendly Adaptations
+Adjustments.
 """
 
             base_prompt = f"""
@@ -361,50 +373,51 @@ Greg's plan: {greg_plan_text or 'None provided'}
 """
 
             try:
-                # Display plan (shorter)
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[
-                        {"role": "system", "content": st.session_state.nora_personality_prompt},
-                        {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}
-                    ],
+                    messages=[{"role": "system", "content": st.session_state.nora_personality_prompt}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
                     max_tokens=2500,
                     temperature=0.7
                 )
                 display_plan = display_response.choices[0].message.content
 
-                # Full plan for email
                 full_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[
-                        {"role": "system", "content": st.session_state.nora_personality_prompt},
-                        {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}
-                    ],
+                    messages=[{"role": "system", "content": st.session_state.nora_personality_prompt}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
                     max_tokens=3500,
                     temperature=0.7
                 )
                 full_plan = full_response.choices[0].message.content
 
-                st.success("Nora's custom nutrition plan for you!")
-                st.markdown(display_plan)
+                # Store in session state for persistence
+                st.session_state.display_plan = display_plan
                 st.session_state.full_plan_for_email = full_plan
-                st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
 
-                st.markdown("### Would you like me to...")
-                st.markdown("""
-                - Adjust this plan for your allergies or budget?
-                - Coordinate with Greg for workout recovery meals?
-                - Add more recipes or meal prep ideas?
-                - Make this family-friendly?
-                """)
+                # Append report to chat history for context
+                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": f"Here's your generated meal plan for reference:\n{display_plan}"})
+
             except Exception as e:
                 st.error("Nora is in the kitchen... try again soon.")
                 st.caption(f"Error: {str(e)}")
 
-    # Email form
-    if "full_plan_for_email" in st.session_state:
+    # Always display the report if it exists in session state
+    if st.session_state.display_plan:
+        st.success("Nora's custom nutrition plan for you!")
+        st.markdown(st.session_state.display_plan)
+        st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
+
+        st.markdown("### Would you like me to...")
+        st.markdown("""
+        - Adjust this plan for your allergies or budget?
+        - Coordinate with Greg for workout recovery meals?
+        - Add more recipes or meal prep ideas?
+        - Make this family-friendly?
+        """)
+
+    # Email form (no clear_on_submit)
+    if st.session_state.full_plan_for_email:
         st.markdown("### Get Your Full Plan Emailed (Save & Share)")
-        with st.form("lead_form_nora", clear_on_submit=True):
+        with st.form("lead_form_nora"):
             name = st.text_input("Your Name")
             email = st.text_input("Email (required)", placeholder="you@example.com")
             phone = st.text_input("Phone (optional)")
@@ -415,11 +428,9 @@ Greg's plan: {greg_plan_text or 'None provided'}
                 else:
                     plan_to_send = st.session_state.full_plan_for_email
                     email_body = f"""Hi {st.session_state.user_name or 'friend'},
-
 Thank you for exploring nutrition with Nora at LBL Lifestyle Solutions!
 Here's your COMPLETE personalized longevity meal plan:
 {plan_to_send}
-
 Enjoy every bite — you're fueling a longer, healthier life!
 Best,
 Nora & the LBL Team"""
@@ -439,14 +450,14 @@ Nora & the LBL Team"""
                         if response.status_code == 200:
                             st.success(f"Full plan sent to {email}! Check your inbox.")
                             st.balloons()
-                            if "full_plan_for_email" in st.session_state:
-                                del st.session_state.full_plan_for_email
+                            # Optionally clear full_plan after send if you want, but keep for persistence
+                            # del st.session_state.full_plan_for_email
                         else:
                             st.error(f"Send failed: {response.text}")
                     except Exception as e:
                         st.error(f"Send error: {str(e)}")
 
-    # === FOLLOW-UP CHAT WITH SAME PERSONALITY ===
+    # Follow-up chat (no changes needed, as report is now in history)
     st.markdown("### Have a follow-up question? Chat with Nora in the box below! 🥗")
     st.caption("Ask about recipes, substitutions, meal ideas — anything!")
 

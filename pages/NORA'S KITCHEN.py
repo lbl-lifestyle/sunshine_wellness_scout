@@ -22,7 +22,7 @@ def show():
     if agent_key not in st.session_state.chat_history:
         st.session_state.chat_history[agent_key] = []
 
-    # DESIGN
+    # DESIGN & STYLING
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -85,12 +85,13 @@ def show():
             margin: 35px 0;
             border-top: 1px solid #c0d8e0;
         }
-        /* Anchor for scrolling to chat */
-        #chat-anchor { margin-top: 100px; }
+        #report-anchor, #chat-anchor {
+            margin-top: 100px;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    # Scroll to top on load, but allow overrides
+    # Gentle scroll to top on initial load only
     st.markdown("""
     <script>
         setTimeout(() => {
@@ -158,7 +159,7 @@ The more you select, the more uniquely tailored your meal plan and our conversat
     st.caption("🔮 Your choices will shape both your personalized meal plan and all follow-up chats!")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # TRAIT MAPPING AND BLENDED PROMPT (unchanged)
+    # BLENDED PERSONALITY PROMPT
     nora_trait_map = {
         "Witty & Warm Foodie (default)": "You are witty, warm, and passionate about food. Use light food-related puns naturally and joyfully.",
         "Calm & Reassuring": "Use a calm, patient, grounding tone. Focus on reassurance and ease.",
@@ -215,7 +216,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
     else:
         st.session_state.user_name = st.session_state.get("user_name", "")
 
-    # Quick Start
+    # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
         st.markdown("""
         Here are popular ways users get started:
@@ -225,6 +226,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
         - Make family-friendly Mediterranean recipes
         """)
 
+    # Form inputs
     st.markdown("### Tell Nora a little bit about you and your eating habits")
     st.write("**Be as detailed as possible!** The more you share about your age, goals, preferences, allergies, budget, and current diet, the better Nora can help. 😊")
     st.caption("💡 Tip: Include favorite foods, foods to avoid, cooking time available, and health priorities!")
@@ -307,30 +309,90 @@ Adapt tone in real-time based on user input while honoring the selected traits.
     if "full_plan_for_email" not in st.session_state:
         st.session_state.full_plan_for_email = None
 
-    # GENERATE BUTTON
+    # GENERATE PLAN
     if st.button("Generate My Custom Meal Plan", type="primary"):
         with st.spinner("Nora is crafting your personalized nutrition plan..."):
-            # Prompt building (unchanged)
+            core_prompt = f"""
+### Weekly Meal Plan
+7-day plan with {meals_per_day} meals/day.
+Focus on balanced, sustainable nutrition for long-term health and enjoyment.
+Include portion guidance and variety.
+### Grocery List
+Organized by category, estimated for 1 person.
+### Longevity Nutrition Principles
+Key habits this plan supports and why they matter.
+"""
+            optional_prompt = ""
+            if "Blue Zones Focus" in plan_sections:
+                optional_prompt += "### Blue Zones Focus\nTips and recipes from longevity hotspots.\n\n"
+            if "Supplement Education (general)" in plan_sections:
+                optional_prompt += "### Supplement Education (general)\nCommon longevity supplements and evidence overview — consult doctor.\n\n"
+            if "Meal Prep Strategies" in plan_sections:
+                optional_prompt += "### Meal Prep Strategies\nTime-saving tips for your cooking availability.\n\n"
+            if "Eating Out Tips" in plan_sections:
+                optional_prompt += "### Eating Out Tips\nHow to make healthy choices at restaurants.\n\n"
+            if "Hydration & Beverage Guide" in plan_sections:
+                optional_prompt += "### Hydration & Beverage Guide\nBest drinks for longevity (beyond water).\n\n"
+            if "Seasonal/Longevity Food Focus" in plan_sections:
+                optional_prompt += "### Seasonal/Longevity Food Focus\nCurrent season's best foods for health.\n\n"
+            if "Family-Friendly Adaptations" in plan_sections:
+                optional_prompt += "### Family-Friendly Adaptations\nHow to adjust for kids/partners.\n\n"
 
-            # ... (keep your entire prompt logic here)
+            full_plan_prompt = core_prompt + optional_prompt + """
+### Blue Zones Focus
+### Supplement Education (general)
+### Meal Prep Strategies
+### Eating Out Tips
+### Hydration & Beverage Guide
+### Seasonal/Longevity Food Focus
+### Family-Friendly Adaptations
+"""
+
+            base_prompt = f"""
+User name: {st.session_state.user_name or 'friend'}
+Client profile:
+Age: {age}
+Goals: {', '.join(goals)}
+Dietary preferences: {', '.join(selected_dietary) or 'No restrictions'}
+Macro targets: {macro_input or 'Balanced default'}
+Allergies: {allergies or 'None'}
+Budget: {budget_level}
+Cooking time: {cooking_time}
+Greg's plan: {greg_plan_text or 'None provided'}
+
+{st.session_state.nora_personality_prompt}
+"""
 
             try:
-                # Generate and store (unchanged)
-                # ...
+                display_response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[{"role": "system", "content": st.session_state.nora_personality_prompt}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
+                    max_tokens=2500,
+                    temperature=0.7
+                )
+                display_plan = display_response.choices[0].message.content
 
-                # After generation:
+                full_response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[{"role": "system", "content": st.session_state.nora_personality_prompt}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
+                    max_tokens=3500,
+                    temperature=0.7
+                )
+                full_plan = full_response.choices[0].message.content
+
+                # Store in session state
                 st.session_state.display_plan = display_plan
                 st.session_state.full_plan_for_email = full_plan
 
-                # Add to chat history (unchanged)
-                # ...
+                # Add summary to chat history for context
+                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": "Your personalized meal plan has been generated. Feel free to ask me anything about it!"})
 
-                # Scroll to report after generation
+                # Scroll to report
                 st.markdown("""
                 <script>
                     const reportAnchor = document.getElementById('report-anchor');
                     if (reportAnchor) {
-                        reportAnchor.scrollIntoView({ behavior: 'smooth' });
+                        reportAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                 </script>
                 """, unsafe_allow_html=True)
@@ -339,12 +401,11 @@ Adapt tone in real-time based on user input while honoring the selected traits.
                 st.error("Nora is in the kitchen... try again soon.")
                 st.caption(f"Error: {str(e)}")
 
-    # SINGLE REPORT DISPLAY WITH ANCHOR
+    # SINGLE REPORT DISPLAY
     if st.session_state.display_plan:
-        st.markdown("<div id='report-anchor'></div>", unsafe_allow_html=True)  # Anchor for scrolling to report
+        st.markdown("<div id='report-anchor'></div>", unsafe_allow_html=True)
         st.success("Nora's custom nutrition plan for you!")
         st.markdown(st.session_state.display_plan)
-        st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
 
         st.markdown("### Would you like me to...")
         st.markdown("""
@@ -353,6 +414,8 @@ Adapt tone in real-time based on user input while honoring the selected traits.
         - Add more recipes or meal prep ideas?
         - Make this family-friendly?
         """)
+
+        st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
 
     # EMAIL FORM
     if st.session_state.full_plan_for_email:
@@ -363,18 +426,48 @@ Adapt tone in real-time based on user input while honoring the selected traits.
             phone = st.text_input("Phone (optional)")
             submitted = st.form_submit_button("📧 Send My Full Plan")
             if submitted:
-                # ... (your email sending logic)
-                # After send, scroll back to report if needed
-                st.markdown("""
-                <script>
-                    const reportAnchor = document.getElementById('report-anchor');
-                    if (reportAnchor) {
-                        reportAnchor.scrollIntoView({ behavior: 'smooth' });
-                    }
-                </script>
-                """, unsafe_allow_html=True)
+                if not email:
+                    st.error("Email required!")
+                else:
+                    plan_to_send = st.session_state.full_plan_for_email
+                    email_body = f"""Hi {st.session_state.user_name or 'friend'},
 
-    # CHAT SECTION WITH ANCHOR AND SCROLL
+Thank you for exploring nutrition with Nora at LBL Lifestyle Solutions!
+Here's your COMPLETE personalized longevity meal plan:
+{plan_to_send}
+
+Enjoy every bite — you're fueling a longer, healthier life!
+Best,
+Nora & the LBL Team"""
+                    data = {
+                        "from": "reports@lbllifestyle.com",
+                        "to": [email],
+                        "cc": [st.secrets["YOUR_EMAIL"]],
+                        "subject": f"{st.session_state.user_name or 'Client'}'s Complete LBL Nutrition Plan",
+                        "text": email_body
+                    }
+                    headers = {
+                        "Authorization": f"Bearer {st.secrets['RESEND_API_KEY']}",
+                        "Content-Type": "application/json"
+                    }
+                    try:
+                        response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
+                        if response.status_code == 200:
+                            st.success(f"Full plan sent to {email}! Check your inbox.")
+                            st.balloons()
+                            # Scroll back to report
+                            st.markdown("""
+                            <script>
+                                const reportAnchor = document.getElementById('report-anchor');
+                                if (reportAnchor) reportAnchor.scrollIntoView({ behavior: 'smooth' });
+                            </script>
+                            """, unsafe_allow_html=True)
+                        else:
+                            st.error(f"Send failed: {response.text}")
+                    except Exception as e:
+                        st.error(f"Send error: {str(e)}")
+
+    # CHAT SECTION
     st.markdown("<div id='chat-anchor'></div>", unsafe_allow_html=True)
     st.markdown("### Have a follow-up question? Chat with Nora in the box below! 🥗")
     st.caption("Ask about recipes, substitutions, meal ideas — anything!")
@@ -391,11 +484,25 @@ Adapt tone in real-time based on user input while honoring the selected traits.
 
         with st.spinner("Nora is thinking..."):
             try:
-                # ... (chat logic unchanged)
+                messages = [
+                    {"role": "system", "content": st.session_state.nora_personality_prompt},
+                    *st.session_state.chat_history[agent_key]
+                ]
+
+                response = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=messages,
+                    max_tokens=800,
+                    temperature=0.7
+                )
+                reply = response.choices[0].message.content
+
+                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": reply})
+                st.chat_message("assistant").write(reply)
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
 
-        # Strong scroll to chat after message
+        # Strong scroll to chat
         st.markdown("""
         <script>
             const chatAnchor = document.getElementById('chat-anchor');

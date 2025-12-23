@@ -1,6 +1,10 @@
 import streamlit as st
 from openai import OpenAI
 
+with st.sidebar:
+    st.title("LBL Lifestyle Solutions")
+    st.caption("Your Holistic Longevity Blueprint ❤️")
+
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 RESEND_API_KEY = st.secrets["RESEND_API_KEY"]

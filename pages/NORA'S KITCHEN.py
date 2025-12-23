@@ -148,7 +148,7 @@ The more you select, the more uniquely tailored your meal plan and our conversat
     st.caption("🔮 Your choices will shape both your personalized meal plan and all follow-up chats!")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # BLENDED PERSONALITY PROMPT WITH GUARDRAILS
+    # BLENDED PERSONALITY PROMPT WITH GUARDRAILS AND NAME USAGE
     nora_trait_map = {
         "Witty & Warm Foodie (default)": "You are witty, warm, and passionate about food. Use light food-related puns naturally and joyfully.",
         "Calm & Reassuring": "Use a calm, patient, grounding tone. Focus on reassurance and ease.",
@@ -197,7 +197,7 @@ Personality traits: {' '.join(nora_modifiers).strip()}
 User communication preference: {' '.join(user_modifiers).strip()}
 
 Blend these seamlessly while staying joyful and focused on delicious, sustainable food.
-Use the user's name ({st.session_state.get('user_name', 'friend')}) naturally in responses where it fits.
+Use the user's name ({st.session_state.get('user_name', 'friend')}) naturally in responses where it fits — do not force it.
 Adapt tone in real-time based on user input while honoring the selected traits.
 """
 
@@ -226,7 +226,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
         - Make family-friendly Mediterranean recipes 👨‍👩‍👧‍👦
         """)
 
-    # Form inputs
+    # Form inputs (all unchanged — your full original form here)
     st.markdown("### Tell Nora a little bit about you and your eating habits 🍴")
     st.write("**Be as detailed as possible!** The more you share about your age, goals, preferences, allergies, budget, and current diet, the better Nora can help. 😊")
     st.caption("💡 Tip: Include favorite foods, foods to avoid, cooking time available, and health priorities!")
@@ -309,7 +309,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
     if "full_plan_for_email" not in st.session_state:
         st.session_state.full_plan_for_email = None
 
-    # GENERATE PLAN
+    # GENERATE PLAN — NO DISPLAY HERE
     if st.button("Generate My Custom Meal Plan 🍴", type="primary"):
         with st.spinner("Nora is crafting your personalized nutrition plan... ✨"):
             core_prompt = f"""
@@ -381,8 +381,8 @@ Greg's plan: {greg_plan_text or 'None provided'}
                 st.session_state.display_plan = display_plan
                 st.session_state.full_plan_for_email = full_plan
 
-                # Add to chat history
-                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": f"Hey {st.session_state.get('user_name', 'friend')}! Your personalized meal plan is ready. Here's the full plan for reference:\n{display_plan} Feel free to ask me anything about it! 🍓"})
+                # Add only a short note to chat history (not the full report)
+                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": f"Hey {st.session_state.get('user_name', 'friend')}! 🎉 Your personalized meal plan is ready below. Feel free to ask me anything about it! 🍓"})
 
                 # Scroll to report
                 st.markdown("""
@@ -398,7 +398,7 @@ Greg's plan: {greg_plan_text or 'None provided'}
                 st.error("Nora is in the kitchen... try again soon. 🔪")
                 st.caption(f"Error: {str(e)}")
 
-    # SINGLE REPORT DISPLAY
+    # SINGLE REPORT DISPLAY (ONLY HERE)
     if st.session_state.display_plan:
         st.markdown("<div id='report-anchor'></div>", unsafe_allow_html=True)
         st.success("Nora's custom nutrition plan for you! 🎉")
@@ -452,13 +452,6 @@ Nora & the LBL Team 🍓"""
                         if response.status_code == 200:
                             st.success(f"Full plan sent to {email}! Check your inbox. 🎉")
                             st.balloons()
-                            # Scroll back to report
-                            st.markdown("""
-                            <script>
-                                const reportAnchor = document.getElementById('report-anchor');
-                                if (reportAnchor) reportAnchor.scrollIntoView({ behavior: 'smooth' });
-                            </script>
-                            """, unsafe_allow_html=True)
                         else:
                             st.error(f"Send failed: {response.text}")
                     except Exception as e:

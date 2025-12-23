@@ -210,7 +210,7 @@ def show():
     # Macro input
      
     macro_input = st.text_input("Optional: Daily Macro Targets (e.g., 40% carbs, 30% protein, 30% fat)", placeholder="Leave blank for balanced default")
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=false)
 
     # Greg upload
     st.markdown('<div class="optional-box">', unsafe_allow_html=True)

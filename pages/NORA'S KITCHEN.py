@@ -1,5 +1,5 @@
 import streamlit as st
-import requests  # In case you add image features later
+import requests
 from openai import OpenAI
 
 with st.sidebar:
@@ -14,17 +14,15 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
-    # Set page title
     st.set_page_config(page_title="Nora – Your Nutrition Coach | LBL Lifestyle Solutions", page_icon="🥗")
 
-    # Safe chat history initialization for this agent
     agent_key = "nora"
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = {}
     if agent_key not in st.session_state.chat_history:
         st.session_state.chat_history[agent_key] = []
 
-    # HIGH-CONTRAST PROFESSIONAL DESIGN
+    # PROFESSIONAL DESIGN WITH UPDATED MULTISELECT STYLING
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -42,6 +40,7 @@ def show():
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea,
         .stSelectbox > div > div > div[data-baseweb="select"] > div,
+        .stMultiSelect > div > div > div,
         .stNumberInput > div > div > input {
             background-color: white !important;
             color: #1e3a2f !important;
@@ -49,9 +48,8 @@ def show():
             border-radius: 10px !important;
             padding: 12px !important;
         }
-        .stTextInput > div > div > input:focus,
-        .stTextArea > div > div > textarea:focus {
-            border-color: #2d6a4f !important;
+        .stMultiSelect > div {
+            background-color: white !important;
         }
         div[data-baseweb="select"] > div {
             background-color: white !important;
@@ -61,29 +59,6 @@ def show():
             background-color: white !important;
             border: 2px solid #2d6a4f !important;
             border-radius: 20px !important;
-        }
-        .stChatInput > div > div > input {
-            color: #1e3a2f !important;
-        }
-        .stChatMessage {
-            background-color: transparent !important;
-        }
-        .optional-box {
-            background-color: #f0f7fc !important;
-            border: 2px solid #a0c4d8 !important;
-            border-left: 6px solid #2d6a4f !important;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 25px;
-        }
-        label {
-            font-weight: 600 !important;
-            color: #2d6a4f !important;
-            font-size: 1.05rem !important;
-        }
-        .separator {
-            margin: 35px 0;
-            border-top: 1px solid #c0d8e0;
         }
         .stButton>button {
             background-color: #2d6a4f;
@@ -98,10 +73,22 @@ def show():
             border-radius: 16px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
+        .personality-box {
+            background-color: #f0f7fc;
+            border: 2px solid #a0c4d8;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    # Force scroll to top
+    # Scroll to top
     st.markdown("""
     <script>
         window.scrollTo(0, 0);
@@ -117,9 +104,107 @@ def show():
     # Hero image
     st.image("https://i.postimg.cc/cJqPm9BP/pexels-tessy-agbonome-521343232-18252407.jpg", caption="Fuel Your Longevity – Welcome to your nutrition journey")
 
-    # Welcome & Disclaimer
+    # Welcome
     st.markdown("### 🥗 Hi! I'm Nora – Your Nutrition Coach for Longevity")
     st.write("Welcome to my kitchen! I'm here to help you build delicious, sustainable eating habits that bring joy and support a longer, healthier life — perfectly tailored to you.")
+
+    # === PERSONALITY CUSTOMIZATION BOX ===
+    st.markdown("<div class='personality-box'>", unsafe_allow_html=True)
+    st.markdown("#### ✨ Let's Make This Truly Personal!")
+
+    st.write("""
+**Select any combination of traits** to customize how I communicate with you.
+
+• **🌟 Nora's Personality Traits** – How you'd like me to sound and coach you  
+• **💬 How You Like to Communicate** – How you'd prefer to be spoken to
+
+The more you select, the more uniquely tailored your meal plan and our conversation will become — like having a nutrition coach designed just for you! 😊
+    """)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        nora_traits = st.multiselect(
+            "🌟 Nora's Personality Traits",
+            [
+                "Witty & Warm Foodie (default)",
+                "Calm & Reassuring",
+                "Direct & No-Nonsense",
+                "Encouraging & Motivational",
+                "Humorous & Playful",
+                "Detailed & Analytical"
+            ],
+            default=["Witty & Warm Foodie (default)"],
+            key="nora_agent_traits",
+            help="Pick multiple! These shape my coaching style"
+        )
+
+    with col2:
+        user_traits = st.multiselect(
+            "💬 How You Like to Communicate",
+            [
+                "Standard / Adapt naturally",
+                "Direct & Concise",
+                "Warm & Encouraging",
+                "Detailed & Thorough",
+                "Friendly & Chatty",
+                "Gentle & Supportive"
+            ],
+            default=["Standard / Adapt naturally"],
+            key="nora_user_traits",
+            help="Pick multiple! These tell me how to best connect with you"
+        )
+
+    st.caption("🔮 Your choices will shape both your personalized meal plan and all follow-up chats!")
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # === TRAIT MAPPING AND BLENDED PROMPT ===
+    nora_trait_map = {
+        "Witty & Warm Foodie (default)": "You are witty, warm, and passionate about food. Use light food-related puns naturally and joyfully.",
+        "Calm & Reassuring": "Use a calm, patient, grounding tone. Focus on reassurance and ease.",
+        "Direct & No-Nonsense": "Be straightforward, concise, and practical. Skip unnecessary fluff.",
+        "Encouraging & Motivational": "Be highly uplifting, use generous praise, and motivate strongly.",
+        "Humorous & Playful": "Incorporate playful humor and tasteful food puns frequently.",
+        "Detailed & Analytical": "Provide thorough explanations, science-backed insights, and step-by-step reasoning."
+    }
+
+    user_trait_map = {
+        "Standard / Adapt naturally": "",
+        "Direct & Concise": "Keep responses short, clear, and straight to the point.",
+        "Warm & Encouraging": "Use lots of positive reinforcement, warmth, and encouragement.",
+        "Detailed & Thorough": "Give comprehensive answers with full explanations and examples.",
+        "Friendly & Chatty": "Be conversational, relaxed, and engaging — like chatting with a friend.",
+        "Gentle & Supportive": "Use soft, empathetic language. Prioritize emotional support and kindness."
+    }
+
+    # Build Nora's blended traits
+    nora_modifiers = []
+    if "Witty & Warm Foodie (default)" in nora_traits:
+        nora_modifiers.append(nora_trait_map["Witty & Warm Foodie (default)"])
+    for trait in nora_traits:
+        if trait != "Witty & Warm Foodie (default)":
+            nora_modifiers.append(nora_trait_map.get(trait, ""))
+
+    user_modifiers = [user_trait_map.get(trait, "") for trait in user_traits if trait != "Standard / Adapt naturally"]
+
+    base_persona = """You are Nora, a warm, evidence-based nutrition coach focused on sustainable, joyful eating for longevity.
+Be encouraging, practical, and anti-diet-culture. Emphasize flavor, health, and long-term habits."""
+
+    dynamic_personality_prompt = f"""
+{base_persona}
+
+Personality traits: {' '.join(nora_modifiers).strip()}
+
+User communication preference: {' '.join(user_modifiers).strip()}
+
+Blend these seamlessly while staying joyful and focused on delicious, sustainable food.
+Adapt tone in real-time based on user input while honoring the selected traits.
+"""
+
+    # Store for use in both report and chat
+    st.session_state.nora_personality_prompt = dynamic_personality_prompt
+
+    # === DISCLAIMERS AND SUCCESS MESSAGE ===
     st.success("**This tool is completely free – no cost, no obligation! Your full plan will be emailed if requested.**")
     st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
 
@@ -142,21 +227,16 @@ def show():
         - Make family-friendly Mediterranean recipes
         """)
 
-    # Encouraging input
+    # Form inputs
     st.markdown("### Tell Nora a little bit about you and your eating habits")
     st.write("**Be as detailed as possible!** The more you share about your age, goals, preferences, allergies, budget, and current diet, the better Nora can help. 😊")
     st.caption("💡 Tip: Include favorite foods, foods to avoid, cooking time available, and health priorities!")
 
     age = st.number_input("Your age", min_value=18, max_value=100, value=45, step=1)
-
-    # Goals + Notes
     goals = st.multiselect("PRIMARY NUTRITION GOALS", ["Longevity/anti-aging", "Energy & vitality", "Heart health", "Weight management", "Gut health", "Brain health", "Muscle maintenance", "General wellness"])
-    
     goals_notes = st.text_area("Optional: Notes on your goals (e.g., specific preferences)", height=100)
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
-    # Dietary preferences
     dietary_options = [
         ("Mediterranean", "Rich in fruits, veggies, olive oil, fish, nuts. Proven for heart health & longevity."),
         ("Plant-based", "Mostly or fully plants — great for inflammation, fiber, environment."),
@@ -176,37 +256,29 @@ def show():
     if selected_dietary:
         for diet in selected_dietary:
             st.caption(f"**{diet}**: {dietary_tooltips[diet]}")
-    
+
     dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     allergies = st.text_area("ALLERGIES OR INTOLERANCES? (optional)", placeholder="Example: Gluten intolerant, lactose sensitive, nut allergy")
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     budget_level = st.selectbox("WEEKLY GROCERY BUDGET LEVEL", ["Budget-conscious", "Moderate", "Premium/organic focus"])
-    
     budget_notes = st.text_input("Optional: Specific budget amount or notes (e.g., $100/week max)")
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     cooking_time = st.selectbox("TIME AVAILABLE FOR COOKING", ["<20 min/meal", "20–40 min/meal", "40+ min/meal (love cooking)"])
-    
     cooking_notes = st.text_input("Optional: Specific cooking notes (e.g., prefer batch cooking on weekends)")
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     meals_per_day = st.slider("MEALS PER DAY YOU WANT PLANS FOR", 2, 5, 3)
-
     macro_input = st.text_input("Optional: Daily Macro Targets (e.g., 40% carbs, 30% protein, 30% fat)", placeholder="Leave blank for balanced default")
-   
+
     # Greg upload
     st.write("**Optional: Team Up with Greg!**")
     st.write("If you've generated a workout plan with Greg, upload it here — Nora will coordinate nutrition to support your training.")
     greg_plan_file = st.file_uploader("Upload Greg's plan (TXT, PDF, PNG, JPG)", type=["txt", "pdf", "png", "jpg", "jpeg"], key="greg_upload_nora")
-    st.markdown('</div>', unsafe_allow_html=True)
 
-    # Read uploaded Greg plan
     greg_plan_text = ""
     if greg_plan_file:
         try:
@@ -217,6 +289,7 @@ def show():
         except:
             greg_plan_text = "[Plan uploaded — content noted]"
 
+    # Refine plan
     st.markdown("### Refine Your Meal Plan (Optional)")
     st.write("Core plan always includes weekly meal ideas, grocery list, and longevity principles. Add extras:")
     plan_sections = st.multiselect(
@@ -233,6 +306,7 @@ def show():
         default=["Meal Prep Strategies"]
     )
 
+    # === GENERATE PLAN WITH PERSONALITY ===
     if st.button("Generate My Custom Meal Plan", type="primary"):
         with st.spinner("Nora is crafting your personalized nutrition plan..."):
             core_prompt = f"""
@@ -261,21 +335,14 @@ Key habits this plan supports and why they matter.
             if "Family-Friendly Adaptations" in plan_sections:
                 optional_prompt += "### Family-Friendly Adaptations\nHow to adjust for kids/partners.\n\n"
 
-            full_plan_prompt = core_prompt + """
+            full_plan_prompt = core_prompt + optional_prompt + """
 ### Blue Zones Focus
-Tips and recipes.
 ### Supplement Education (general)
-Overview.
 ### Meal Prep Strategies
-Tips.
 ### Eating Out Tips
-Choices.
 ### Hydration & Beverage Guide
-Drinks.
 ### Seasonal/Longevity Food Focus
-Best foods.
 ### Family-Friendly Adaptations
-Adjustments.
 """
 
             base_prompt = f"""
@@ -289,15 +356,18 @@ Allergies: {allergies or 'None'}
 Budget: {budget_level}
 Cooking time: {cooking_time}
 Greg's plan: {greg_plan_text or 'None provided'}
-You are Nora, a warm, evidence-based nutrition coach focused on sustainable, enjoyable eating for long-term health.
-Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long-term health — adapt to user's stated preferences.
+
+{st.session_state.nora_personality_prompt}
 """
 
             try:
-                # Display plan
+                # Display plan (shorter)
                 display_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}],
+                    messages=[
+                        {"role": "system", "content": st.session_state.nora_personality_prompt},
+                        {"role": "user", "content": base_prompt + "\n" + core_prompt + optional_prompt}
+                    ],
                     max_tokens=2500,
                     temperature=0.7
                 )
@@ -306,7 +376,10 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 # Full plan for email
                 full_response = client.chat.completions.create(
                     model=MODEL_NAME,
-                    messages=[{"role": "system", "content": "You are Nora, warm nutrition coach."}, {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}],
+                    messages=[
+                        {"role": "system", "content": st.session_state.nora_personality_prompt},
+                        {"role": "user", "content": base_prompt + "\n" + full_plan_prompt}
+                    ],
                     max_tokens=3500,
                     temperature=0.7
                 )
@@ -317,7 +390,6 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 st.session_state.full_plan_for_email = full_plan
                 st.info("📧 Want the **complete version** with every section? Fill in the email form below!")
 
-                # Follow-up suggestions
                 st.markdown("### Would you like me to...")
                 st.markdown("""
                 - Adjust this plan for your allergies or budget?
@@ -343,9 +415,11 @@ Be encouraging, practical, and anti-diet-culture. Focus on joy, flavor, and long
                 else:
                     plan_to_send = st.session_state.full_plan_for_email
                     email_body = f"""Hi {st.session_state.user_name or 'friend'},
+
 Thank you for exploring nutrition with Nora at LBL Lifestyle Solutions!
 Here's your COMPLETE personalized longevity meal plan:
 {plan_to_send}
+
 Enjoy every bite — you're fueling a longer, healthier life!
 Best,
 Nora & the LBL Team"""
@@ -372,101 +446,16 @@ Nora & the LBL Team"""
                     except Exception as e:
                         st.error(f"Send error: {str(e)}")
 
-    # ==================================================================
-    # === PERSONALITY CUSTOMIZATION CHAT SECTION ===
-    # ==================================================================
-
+    # === FOLLOW-UP CHAT WITH SAME PERSONALITY ===
     st.markdown("### Have a follow-up question? Chat with Nora in the box below! 🥗")
     st.caption("Ask about recipes, substitutions, meal ideas — anything!")
 
-    # Initialize personality preferences in session state
-    if f"{agent_key}_agent_style" not in st.session_state:
-        st.session_state[f"{agent_key}_agent_style"] = "Default (Witty & Warm Foodie)"
-    if f"{agent_key}_user_style" not in st.session_state:
-        st.session_state[f"{agent_key}_user_style"] = "Standard / Let the AI adapt naturally"
-
-    # Dual dropdowns
-    col1, col2 = st.columns(2)
-
-    with col1:
-        nora_agent_options = [
-            "Default (Witty & Warm Foodie)",
-            "Calm & Reassuring",
-            "Direct & No-Nonsense",
-            "Encouraging & Motivational",
-            "Humorous & Playful",
-            "Detailed & Analytical"
-        ]
-        selected_agent = st.selectbox(
-            "Customize Nora's Style (Optional)",
-            options=nora_agent_options,
-            index=nora_agent_options.index(st.session_state[f"{agent_key}_agent_style"]),
-            key=f"{agent_key}_agent_select"
-        )
-        st.session_state[f"{agent_key}_agent_style"] = selected_agent
-
-    with col2:
-        user_pref_options = [
-            "Standard / Let the AI adapt naturally",
-            "Direct & Concise",
-            "Warm & Encouraging",
-            "Detailed & Thorough",
-            "Friendly & Chatty",
-            "Gentle & Supportive"
-        ]
-        selected_user = st.selectbox(
-            "How I Like to Communicate (Optional)",
-            options=user_pref_options,
-            index=user_pref_options.index(st.session_state[f"{agent_key}_user_style"]),
-            key=f"{agent_key}_user_select"
-        )
-        st.session_state[f"{agent_key}_user_style"] = selected_user
-
-    # Mapping dictionaries for prompt modifiers
-    agent_style_map = {
-        "Default (Witty & Warm Foodie)": "You are witty, warm, and passionate about food. Use light food-related puns naturally and joyfully.",
-        "Calm & Reassuring": "Use a calm, patient, grounding tone. Focus on reassurance and ease.",
-        "Direct & No-Nonsense": "Be straightforward, concise, and practical. Skip unnecessary fluff.",
-        "Encouraging & Motivational": "Be highly uplifting, use generous praise, and motivate strongly.",
-        "Humorous & Playful": "Incorporate playful humor and tasteful food puns frequently.",
-        "Detailed & Analytical": "Provide thorough explanations, science-backed insights, and step-by-step reasoning."
-    }
-
-    user_style_map = {
-        "Standard / Let the AI adapt naturally": "Adapt naturally to the user's tone and needs.",
-        "Direct & Concise": "Keep responses short, clear, and straight to the point.",
-        "Warm & Encouraging": "Use lots of positive reinforcement, warmth, and encouragement.",
-        "Detailed & Thorough": "Give comprehensive answers with full explanations and examples.",
-        "Friendly & Chatty": "Be conversational, relaxed, and engaging — like chatting with a friend.",
-        "Gentle & Supportive": "Use soft, empathetic language. Prioritize emotional support and kindness."
-    }
-
-    # Build dynamic system prompt
-    base_persona = """You are Nora, a warm, evidence-based nutrition coach focused on sustainable, joyful eating for longevity.
-Be encouraging, practical, and anti-diet-culture. Emphasize flavor, health, and long-term habits."""
-
-    agent_modifier = agent_style_map.get(st.session_state[f"{agent_key}_agent_style"], "")
-    user_modifier = user_style_map.get(st.session_state[f"{agent_key}_user_style"], "")
-
-    dynamic_system_prompt = f"""
-{base_persona}
-
-Style adjustment: {agent_modifier}
-
-User communication preference: {user_modifier}
-
-Blend these seamlessly while staying true to Nora's core personality.
-Continue adapting in real-time based on the conversation flow and user inputs.
-"""
-
-    # Display chat history
     for msg in st.session_state.chat_history[agent_key]:
         if msg["role"] == "user":
             st.chat_message("user").write(msg["content"])
         else:
             st.chat_message("assistant").write(msg["content"])
 
-    # Chat input
     if prompt := st.chat_input("Ask Nora a question..."):
         st.session_state.chat_history[agent_key].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
@@ -474,7 +463,7 @@ Continue adapting in real-time based on the conversation flow and user inputs.
         with st.spinner("Nora is thinking..."):
             try:
                 messages = [
-                    {"role": "system", "content": dynamic_system_prompt},
+                    {"role": "system", "content": st.session_state.nora_personality_prompt},
                     *st.session_state.chat_history[agent_key]
                 ]
 
@@ -490,7 +479,6 @@ Continue adapting in real-time based on the conversation flow and user inputs.
                 st.chat_message("assistant").write(reply)
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
-                st.caption(f"Error: {str(e)}")
 
         st.rerun()
 

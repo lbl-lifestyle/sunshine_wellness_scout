@@ -3,13 +3,22 @@ from openai import OpenAI
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
+RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
+YOUR_EMAIL = st.secrets["YOUR_EMAIL"]
+
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
-    # Initialize chat history
+    # Set page title
+    st.set_page_config(page_title="Nurse Zoey Zoe – Your Health Assessor | LBL Lifestyle Solutions", page_icon="🩺")
+
+    # Safe chat history initialization for this agent
+    agent_key = "zoey"
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = {"zoey": []}
+        st.session_state.chat_history = {}
+    if agent_key not in st.session_state.chat_history:
+        st.session_state.chat_history[agent_key] = []
 
     # HIGH-CONTRAST PROFESSIONAL DESIGN
     st.markdown("""
@@ -88,13 +97,10 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Scroll to top
+    # Force scroll to top
     st.markdown("""
     <script>
-        window.scrollTo(0, 0);
-        const mainSection = window.parent.document.querySelector('section.main');
-        if (mainSection) mainSection.scrollTop = 0;
-        setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
+        window.parent.document.querySelector('section.main').scrollTop = 0;
     </script>
     """, unsafe_allow_html=True)
 
@@ -110,7 +116,7 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="zoey_name_input")
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="zoey_name_input_unique")
     if user_name:
         st.session_state.user_name = user_name.strip()
     else:
@@ -126,7 +132,7 @@ def show():
         - Suggest preventive screenings for my age
         """)
 
-    # Encouraging input
+    # Input form
     st.markdown("### Tell Zoey about your health questions or data")
     st.write("**Be as detailed as possible!** Share symptoms, labs, lifestyle, concerns, or goals — the more context, the better the educational insights.")
     st.caption("💡 Tip: Include age, symptoms duration, current habits, family history, or specific questions!")
@@ -275,11 +281,14 @@ Nurse Zoey Zoe & the LBL Team"""
                     data = {
                         "from": "reports@lbllifestyle.com",
                         "to": [email],
-                        "cc": [YOUR_EMAIL],
+                        "cc": [st.secrets["YOUR_EMAIL"]],
                         "subject": f"{st.session_state.user_name or 'Client'}'s Complete LBL Wellness Insights",
                         "text": email_body
                     }
-                    headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
+                    headers = {
+                        "Authorization": f"Bearer {st.secrets['RESEND_API_KEY']}",
+                        "Content-Type": "application/json"
+                    }
                     try:
                         response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                         if response.status_code == 200:
@@ -296,14 +305,14 @@ Nurse Zoey Zoe & the LBL Team"""
     st.markdown("### Have a follow-up question? Chat with Nurse Zoey Zoe in the box below! 🩺")
     st.caption("Ask about symptoms, habits, prevention — I'm here to educate and support.")
 
-    for msg in st.session_state.chat_history["zoey"]:
+    for msg in st.session_state.chat_history[agent_key]:
         if msg["role"] == "user":
             st.chat_message("user").write(msg["content"])
         else:
             st.chat_message("assistant").write(msg["content"])
 
     if prompt := st.chat_input("Ask Nurse Zoey Zoe a question..."):
-        st.session_state.chat_history["zoey"].append({"role": "user", "content": prompt})
+        st.session_state.chat_history[agent_key].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
         with st.spinner("Nurse Zoey Zoe is thinking..."):
@@ -312,14 +321,14 @@ Nurse Zoey Zoe & the LBL Team"""
                     model=MODEL_NAME,
                     messages=[
                         {"role": "system", "content": "You are Nurse Zoey Zoe, compassionate nurse providing general wellness education. Never diagnose or prescribe."},
-                        *st.session_state.chat_history["zoey"]
+                        *st.session_state.chat_history[agent_key]
                     ],
                     max_tokens=800,
                     temperature=0.7
                 )
                 reply = response.choices[0].message.content
                 st.session_state.chat_history[agent_key].append({"role": "assistant", "content": reply})
-                st.chat_message("assistant").write(reply
+                st.chat_message("assistant").write(reply)
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
 

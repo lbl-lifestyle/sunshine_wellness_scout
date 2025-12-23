@@ -89,7 +89,7 @@ def show():
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
         
         .stApp {
-            background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
+            background: linear_gradient(to bottom, #f5f7fa, #e0e7f0);
             color: #1e3a2f;
             font-family: 'Inter', sans-serif;
         }
@@ -164,8 +164,8 @@ def show():
     st.image("https://i.postimg.cc/fRms9xv6/tierra-mallorca-rg_J1J8SDEAY-unsplash.jpg", caption="Your Keys Await – Welcome to your longevity lifestyle")
 
     # Welcome & Disclaimer
-    st.markdown("### 🏡 Hello! I'm Fred – Your Wellness Home Scout")
-    st.write("I'm here to help you find or create a home environment that actively supports your health, recovery, and longevity — anywhere in the U.S.")
+    st.markdown("### 🏡 Hi! I'm Fred — Your Wellness Home Scout")
+    st.write("Welcome to my office! I'm here to help you find or create a home environment that actively supports your health, recovery, and longevity — anywhere in the U.S.")
     st.warning("**Important**: I am not a licensed real estate agent. My recommendations are general wellness education based on research and trends. Always consult a licensed professional for real estate decisions.")
     st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
 

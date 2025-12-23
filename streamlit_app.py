@@ -32,11 +32,16 @@ def navigate_to(page: str):
     st.rerun()
 
 # ===================================================
-# HOME PAGE (No top tabs — sidebar navigation only)
+# HOME PAGE
 # ===================================================
 
 if st.session_state.current_page == "home":
     st.set_page_config(page_title="LBL Lifestyle Solutions – Live Better Longer", page_icon="❤️")
+
+    # Custom sidebar title
+    with st.sidebar:
+        st.title("LBL Lifestyle Solutions")
+        st.caption("Your Holistic Longevity Blueprint ❤️")
 
     st.markdown("""
     <style>
@@ -146,16 +151,16 @@ if st.session_state.current_page == "home":
     st.markdown("<h2>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
     <div style='text-align: center; font-size: 1.4rem; line-height: 1.9; max-width: 900px; margin: auto;'>
-    1. **Choose Your Agent** – Use the sidebar menu to meet your team.<br><br>
+    1. **Choose Your Agent** – Use the sidebar menu on the left to meet your team.<br><br>
     2. **Get Personalized Guidance** – Fill out the form or chat — your agent will create a custom report or plan just for you.<br><br>
     3. **Build Your Longevity Lifestyle** – Save your reports, come back anytime, and unlock more agents as you go!<br><br>
-    Ready to live better longer? 👈 Use the sidebar menu to pick an agent!
+    Ready to live better longer? 👈 Open the sidebar menu to pick an agent!
     </div>
     """, unsafe_allow_html=True)
 
     # AGENT CARDS — full display on home page
     st.markdown("### Meet your longevity team")
-    st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Use the sidebar menu to chat with any agent</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Use the sidebar menu on the left to chat with any agent</p>", unsafe_allow_html=True)
 
     cols = st.columns(4)
 
@@ -174,7 +179,7 @@ if st.session_state.current_page == "home":
         st.markdown("<div class='agent-examples'>Examples:<br>• Build a 3-day home workout for busy parents<br>• Create a plan for beginners with bad knees<br>• Add mobility work to my current routine<br>• Design a program for better sleep and energy</div>", unsafe_allow_html=True)
 
     with cols[2]:
-        st.markdown("<div class='agent-name'>ZOEY</div>", unsafe_allow_html=True)
+        st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
         st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=200)
         st.markdown("<div class='agent-subtitle'>YOUR HEALTH ASSESSOR</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-desc'>A compassionate guide helping you understand labs, symptoms, and preventive wellness habits.</div>", unsafe_allow_html=True)
@@ -209,4 +214,3 @@ elif st.session_state.current_page == "zoey":
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
-

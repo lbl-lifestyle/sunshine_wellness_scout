@@ -181,8 +181,7 @@ def show():
     if selected_dietary:
         for diet in selected_dietary:
             st.caption(f"**{diet}**: {dietary_tooltips[diet]}")
-
-    st.markdown('<div class="optional-box">', unsafe_allow_html=True)
+     
     dietary_notes = st.text_area("Optional: Notes on your dietary preferences (e.g., foods to include/avoid)", height=100)
     st.markdown('</div>', unsafe_allow_html=True)
 

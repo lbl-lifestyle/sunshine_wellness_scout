@@ -192,14 +192,14 @@ def show():
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     budget_level = st.selectbox("WEEKLY GROCERY BUDGET LEVEL", ["Budget-conscious", "Moderate", "Premium/organic focus"])
-    st.markdown('<div class="optional-box">', unsafe_allow_html=True)
+     
     budget_notes = st.text_input("Optional: Specific budget amount or notes (e.g., $100/week max)")
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown('<div class="separator"></div>', unsafe_allow_html=True)
 
     cooking_time = st.selectbox("TIME AVAILABLE FOR COOKING", ["<20 min/meal", "20–40 min/meal", "40+ min/meal (love cooking)"])
-    st.markdown('<div class="optional-box">', unsafe_allow_html=True)
+     
     cooking_notes = st.text_input("Optional: Specific cooking notes (e.g., prefer batch cooking on weekends)")
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -208,7 +208,7 @@ def show():
     meals_per_day = st.slider("MEALS PER DAY YOU WANT PLANS FOR", 2, 5, 3)
 
     # Macro input
-    st.markdown('<div class="optional-box">', unsafe_allow_html=True)
+     
     macro_input = st.text_input("Optional: Daily Macro Targets (e.g., 40% carbs, 30% protein, 30% fat)", placeholder="Leave blank for balanced default")
     st.markdown('</div>', unsafe_allow_html=True)
 

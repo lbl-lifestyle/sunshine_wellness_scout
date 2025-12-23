@@ -97,10 +97,18 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Force scroll to top
+    # Force scroll to top — delayed to override chat focus
     st.markdown("""
     <script>
-        window.parent.document.querySelector('section.main').scrollTop = 0;
+        // Immediate
+        window.scrollTo(0, 0);
+        const main = parent.document.querySelector('section.main');
+        if (main) main.scrollTop = 0;
+        // Delayed override
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+            if (main) main.scrollTop = 0;
+        }, 200);
     </script>
     """, unsafe_allow_html=True)
 
@@ -117,10 +125,8 @@ def show():
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
     user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="zoey_name_input_unique")
-    if user_name:
+    if user_name.strip():
         st.session_state.user_name = user_name.strip()
-    else:
-        st.session_state.user_name = "there"
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
@@ -209,7 +215,7 @@ Overview — consult doctor.
 Red flags.
 """
                 base_prompt = f"""
-User name: {st.session_state.user_name}
+User name: {st.session_state.user_name or 'friend'}
 Data/Question: {combined or 'General wellness inquiry'}
 Specific question: {question or 'Overall health insights'}
 Provide general education only. Never diagnose or prescribe.
@@ -266,7 +272,7 @@ Use phrases like "Generally speaking..." or "Standard guidelines suggest...".
                     st.error("Email required!")
                 else:
                     insights_to_send = st.session_state.full_insights_for_email
-                    email_body = f"""Hi {st.session_state.user_name},
+                    email_body = f"""Hi {st.session_state.user_name or 'friend'},
 
 Thank you for trusting Nurse Zoey Zoe at LBL Lifestyle Solutions.
 

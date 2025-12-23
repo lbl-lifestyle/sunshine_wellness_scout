@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 from openai import OpenAI
 
 # Secrets
@@ -122,12 +121,14 @@ def show():
     st.write("I provide general wellness education and help you understand symptoms, labs, and preventive habits — all to support your longevity journey.")
     st.warning("**Important**: I am not a doctor and do not provide medical diagnoses, treatments, or prescriptions. This is general education only. Always consult a licensed healthcare professional for personal medical advice.")
 
-    # Name Input
+    # Name Input — blank by default, safe fallback
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
     user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="zoey_name_input_unique")
     if user_name.strip():
         st.session_state.user_name = user_name.strip()
+    else:
+        st.session_state.user_name = st.session_state.get("user_name", "")
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):

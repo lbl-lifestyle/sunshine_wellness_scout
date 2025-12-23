@@ -397,37 +397,6 @@ Fred & the LBL Team"""
     # Streamlined chat
     st.markdown("### Have a follow-up question? Chat with Fred in the box below! 🏡")
     st.caption("Ask about neighborhoods, features, or anything else!")
-
-        # Floating Back to Top button (shows when scrolled down)
-    st.markdown("""
-    <div id="backToTopBtn" style="position: fixed; bottom: 80px; right: 20px; z-index: 1000; display: none;">
-        <button style="background-color: #2d6a4f; color: white; padding: 14px 20px; border-radius: 50px; border: none; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer;">
-            ↑ Top
-        </button>
-    </div>
-    <script>
-        const btn = document.getElementById('backToTopBtn');
-        const checkScroll = () => {
-            const scrolled = window.pageYOffset > 300 || 
-                             (parent.document.body.scrollTop > 300) ||
-                             (parent.document.documentElement.scrollTop > 300) ||
-                             (parent.document.querySelector('section.main') && parent.document.querySelector('section.main').scrollTop > 300);
-            btn.style.display = scrolled ? 'block' : 'none';
-        };
-        // Run on load and scroll
-        window.addEventListener('load', checkScroll);
-        window.addEventListener('scroll', checkScroll);
-        const mainSection = parent.document.querySelector('section.main');
-        if (mainSection) mainSection.addEventListener('scroll', checkScroll);
-        // Click handler
-        btn.addEventListener('click', () => {
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            if (mainSection) mainSection.scrollTo({top: 0, behavior: 'smooth'});
-        });
-        // Initial check
-        checkScroll();
-    </script>
-    """, unsafe_allow_html=True)
     
     for msg in st.session_state.chat_history[agent_key]:
         if msg["role"] == "user":
@@ -458,7 +427,7 @@ Fred & the LBL Team"""
 
         st.rerun()
     
-    # Floating Back to Top button (shows when scrolled down)
+# Floating Back to Top button (shows when scrolled down)
     st.markdown("""
     <div id="backToTopBtn" style="position: fixed; bottom: 80px; right: 20px; z-index: 1000; display: none;">
         <button style="background-color: #2d6a4f; color: white; padding: 14px 20px; border-radius: 50px; border: none; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); cursor: pointer;">

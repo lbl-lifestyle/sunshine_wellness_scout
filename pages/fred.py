@@ -169,12 +169,14 @@ def show():
     st.warning("**Important**: I am not a licensed real estate agent. My recommendations are general wellness education based on research and trends. Always consult a licensed professional for real estate decisions.")
     st.success("**This tool is completely free – no cost, no obligation! Your full report will be emailed if requested.**")
 
-    # Name Input
+    # Name Input — blank by default, safe fallback
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
     user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="fred_name_input_unique")
     if user_name.strip():
         st.session_state.user_name = user_name.strip()
+    else:
+        st.session_state.user_name = st.session_state.get("user_name", "")
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
@@ -287,7 +289,7 @@ Example day.
 """
 
                 base_prompt = f"""
-User name: {st.session_state.user_name}
+User name: {st.session_state.user_name or 'friend'}
 Client description:
 {client_needs}
 Budget: ${budget:,}

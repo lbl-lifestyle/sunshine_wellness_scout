@@ -403,8 +403,8 @@ Nora & the LBL Team"""
                     temperature=0.7
                 )
                 reply = response.choices[0].message.content
-                st.session_state.chat_history["nora"].append({"role": "assistant", "content": reply})
-                st.chat_message("assistant").write(reply)
+                st.session_state.chat_history[agent_key].append({"role": "assistant", "content": reply})
+                st.chat_message("assistant").write(reply
             except Exception as e:
                 st.error("Sorry, I'm having trouble right now. Try again soon.")
 

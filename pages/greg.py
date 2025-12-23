@@ -3,13 +3,22 @@ from openai import OpenAI
 
 # Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
+RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
+YOUR_EMAIL = st.secrets["YOUR_EMAIL"]
+
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 
 def show():
-    # Initialize chat history
+    # Set page title
+    st.set_page_config(page_title="Greg – Your Personal Trainer | LBL Lifestyle Solutions", page_icon="💪")
+
+    # Safe chat history initialization for this agent
+    agent_key = "greg"
     if "chat_history" not in st.session_state:
-        st.session_state.chat_history = {"greg": []}
+        st.session_state.chat_history = {}
+    if agent_key not in st.session_state.chat_history:
+        st.session_state.chat_history[agent_key] = []
 
     # HIGH-CONTRAST PROFESSIONAL DESIGN
     st.markdown("""
@@ -88,13 +97,18 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Scroll to top
+    # Force scroll to top — delayed to override chat focus
     st.markdown("""
     <script>
+        // Immediate
         window.scrollTo(0, 0);
-        const mainSection = window.parent.document.querySelector('section.main');
-        if (mainSection) mainSection.scrollTop = 0;
-        setTimeout(() => { window.scrollTo(0, 0); if (mainSection) mainSection.scrollTop = 0; }, 100);
+        const main = parent.document.querySelector('section.main');
+        if (main) main.scrollTop = 0;
+        // Delayed override
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+            if (main) main.scrollTop = 0;
+        }, 200);
     </script>
     """, unsafe_allow_html=True)
 
@@ -110,11 +124,9 @@ def show():
     # Name Input
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
-    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input")
-    if user_name:
+    user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="greg_name_input_unique")
+    if user_name.strip():
         st.session_state.user_name = user_name.strip()
-    else:
-        st.session_state.user_name = "there"
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):
@@ -200,7 +212,7 @@ Next phases.
 """
 
             base_prompt = f"""
-User name: {st.session_state.user_name}
+User name: {st.session_state.user_name or 'friend'}
 Client profile:
 Age: {age}
 Fitness level: {fitness_level}
@@ -265,7 +277,7 @@ Be encouraging but realistic, emphasize form and safety.
                     st.error("Email required!")
                 else:
                     plan_to_send = st.session_state.full_plan_for_email
-                    email_body = f"""Hi {st.session_state.user_name},
+                    email_body = f"""Hi {st.session_state.user_name or 'friend'},
 
 Thank you for training with Greg at LBL Lifestyle Solutions!
 
@@ -284,7 +296,10 @@ Greg & the LBL Team"""
                         "subject": f"{st.session_state.user_name or 'Client'}'s Complete LBL Fitness Plan",
                         "text": email_body
                     }
-                    headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
+                    headers = {
+                        "Authorization": f"Bearer {st.secrets['RESEND_API_KEY']}",
+                        "Content-Type": "application/json"
+                    }
                     try:
                         response = requests.post("https://api.resend.com/emails", json=data, headers=headers)
                         if response.status_code == 200:
@@ -301,14 +316,14 @@ Greg & the LBL Team"""
     st.markdown("### Have a follow-up question? Chat with Greg in the box below! 💪")
     st.caption("Ask about form, modifications, motivation — anything!")
 
-    for msg in st.session_state.chat_history["greg"]:
+    for msg in st.session_state.chat_history[agent_key]:
         if msg["role"] == "user":
             st.chat_message("user").write(msg["content"])
         else:
             st.chat_message("assistant").write(msg["content"])
 
     if prompt := st.chat_input("Ask Greg a question..."):
-        st.session_state.chat_history["greg"].append({"role": "user", "content": prompt})
+        st.session_state.chat_history[agent_key].append({"role": "user", "content": prompt})
         st.chat_message("user").write(prompt)
 
         with st.spinner("Greg is thinking..."):
@@ -317,7 +332,7 @@ Greg & the LBL Team"""
                     model=MODEL_NAME,
                     messages=[
                         {"role": "system", "content": "You are Greg, a highly motivated, energetic personal trainer focused on building strength, endurance, and longevity."},
-                        *st.session_state.chat_history["greg"]
+                        *st.session_state.chat_history[agent_key]
                     ],
                     max_tokens=800,
                     temperature=0.7

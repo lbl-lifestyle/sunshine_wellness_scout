@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 from openai import OpenAI
 
 # Secrets
@@ -122,12 +121,14 @@ def show():
     st.write("I help you build sustainable, delicious eating habits that fit your life — focusing on balance, joy, and long-term health, tailored to your preferences.")
     st.warning("**Important**: I am not a registered dietitian or medical professional. My suggestions are general wellness education based on publicly available research. Always consult a qualified healthcare provider or registered dietitian before making dietary changes, especially if you have medical conditions.")
 
-    # Name Input
+    # Name Input — blank by default, safe fallback
     st.markdown("### What's your name?")
     st.write("So I can make this feel more personal 😊")
     user_name = st.text_input("Your first name (optional)", value=st.session_state.get("user_name", ""), key="nora_name_input_unique")
     if user_name.strip():
         st.session_state.user_name = user_name.strip()
+    else:
+        st.session_state.user_name = st.session_state.get("user_name", "")
 
     # Quick Start Ideas
     with st.expander("💡 Quick Start Ideas – Not sure where to begin?"):

@@ -1,19 +1,13 @@
+# main.py v2 - Home Page
 import streamlit as st
 
-
-# ===================================================
 # FORCE HOME ON FRESH LOAD OR INVALID PAGE
-# ===================================================
-
 if st.query_params.get("page") is None:
     if "current_page" not in st.session_state or st.session_state.current_page != "home":
         st.session_state.current_page = "home"
         st.rerun()
 
-# ===================================================
 # SESSION STATE INITIALIZATION
-# ===================================================
-
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = {
         "fred": [],
@@ -21,10 +15,8 @@ if "chat_history" not in st.session_state:
         "zoey": [],
         "nora": []
     }
-
 if "current_page" not in st.session_state:
     st.session_state.current_page = "home"
-
 if st.session_state.current_page not in ["home", "fred", "greg", "zoey", "nora"]:
     st.session_state.current_page = "home"
 
@@ -32,22 +24,17 @@ def navigate_to(page: str):
     st.session_state.current_page = page
     st.rerun()
 
-# ===================================================
 # HOME PAGE
-# ===================================================
-
 if st.session_state.current_page == "home":
     st.set_page_config(page_title="LBL Lifestyle Solutions – Live Better Longer", page_icon="❤️")
-
     # Custom sidebar title
     with st.sidebar:
         st.title("LBL Lifestyle Solutions")
         st.caption("Your Holistic Longevity Blueprint ❤️")
-
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
-        
+       
         .stApp {
             background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
             color: #1e3a2f;
@@ -118,10 +105,8 @@ if st.session_state.current_page == "home":
         }
     </style>
     """, unsafe_allow_html=True)
-
     st.markdown("<h1 class='main-header'>LBL LIFESTYLE SOLUTIONS</h1>", unsafe_allow_html=True)
     st.markdown("<p class='tagline'>LIVE BETTER LONGER</p>", unsafe_allow_html=True)
-
     # VIDEO EMBED
     st.markdown("""
     <div style="display: flex; justify-content: center; margin: 40px 0; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.1);">
@@ -134,7 +119,6 @@ if st.session_state.current_page == "home":
         </iframe>
     </div>
     """, unsafe_allow_html=True)
-
     # OPENING STATEMENT
     st.markdown("""
     <div class='opening-statement'>
@@ -146,9 +130,7 @@ if st.session_state.current_page == "home":
     Ready to meet your team and start living better longer?
     </div>
     """, unsafe_allow_html=True)
-
     st.image("https://i.postimg.cc/tgsgw1dW/image.jpg", caption="Your Longevity Blueprint")
-
     st.markdown("<h2>How It Works – 3 Simple Steps</h2>", unsafe_allow_html=True)
     st.markdown("""
     <div style='text-align: center; font-size: 1.4rem; line-height: 1.9; max-width: 900px; margin: auto;'>
@@ -158,62 +140,47 @@ if st.session_state.current_page == "home":
     Ready to live better longer? 👈 Open the sidebar menu to pick an agent!
     </div>
     """, unsafe_allow_html=True)
-
     # AGENT CARDS — full display on home page
     st.markdown("### Meet your longevity team")
     st.markdown("<p style='text-align:center; color:#1e3a2f; font-size:1.2rem;'>Use the sidebar menu on the left to chat with any agent</p>", unsafe_allow_html=True)
-
     cols = st.columns(4)
-
     with cols[0]:
         st.markdown("<div class='agent-name'>FRED</div>", unsafe_allow_html=True)
         st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", width=200)
         st.markdown("<div class='agent-subtitle'>YOUR WELLNESS HOME SCOUT</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-desc'>A goal-focused advisor helping you find or create a home that supports your health and longevity.</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-examples'>Examples:<br>• Find quiet neighborhoods with trails near Tampa<br>• Suggest homes with gym space under $600k<br>• Compare walkability in Asheville vs Sarasota<br>• Modify my current home for aging in place</div>", unsafe_allow_html=True)
-
     with cols[1]:
         st.markdown("<div class='agent-name'>GREG</div>", unsafe_allow_html=True)
         st.image("https://i.postimg.cc/yxf3Szvc/pexels-andres-ayrton-6551079.jpg", width=200)
         st.markdown("<div class='agent-subtitle'>YOUR PERSONAL TRAINER</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-desc'>A motivated coach building sustainable strength, mobility, and endurance routines tailored to your goals.</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-examples'>Examples:<br>• Build a 3-day home workout for busy parents<br>• Create a plan for beginners with bad knees<br>• Add mobility work to my current routine<br>• Design a program for better sleep and energy</div>", unsafe_allow_html=True)
-
     with cols[2]:
         st.markdown("<div class='agent-name'>NURSE ZOEY ZOE</div>", unsafe_allow_html=True)
         st.image("https://images.pexels.com/photos/5215021/pexels-photo-5215021.jpeg", width=200)
         st.markdown("<div class='agent-subtitle'>YOUR HEALTH ASSESSOR</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-desc'>A compassionate guide helping you understand labs, symptoms, and preventive wellness habits.</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-examples'>Examples:<br>• Explain my bloodwork in simple terms<br>• What lifestyle changes help lower blood pressure?<br>• Review my symptoms and when to see a doctor<br>• Suggest preventive screenings for my age</div>", unsafe_allow_html=True)
-
     with cols[3]:
         st.markdown("<div class='agent-name'>NORA</div>", unsafe_allow_html=True)
         st.image("https://i.postimg.cc/cJqPm9BP/pexels-tessy-agbonome-521343232-18252407.jpg", width=200)
         st.markdown("<div class='agent-subtitle'>YOUR NUTRITION COACH</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-desc'>Personalized longevity meal plans, grocery lists — delicious food for a longer life.</div>", unsafe_allow_html=True)
         st.markdown("<div class='agent-examples'>Examples:<br>• Create a 7-day plan with $100 grocery budget<br>• Build meals around my 40/30/30 macros<br>• Suggest snacks that won't spike blood sugar<br>• Make family-friendly Mediterranean recipes</div>", unsafe_allow_html=True)
-
     st.markdown("---")
     st.markdown("<small>LBL Lifestyle Solutions • Your Holistic Longevity Blueprint<br>Powered by Grok (xAI) • Personalized wellness powered by AI</small>", unsafe_allow_html=True)
 
-# ===================================================
 # AGENT PAGES
-# ===================================================
-
 elif st.session_state.current_page == "fred":
     import pages.fred as fred_page
     fred_page.show()
-
 elif st.session_state.current_page == "greg":
     import pages.greg as greg_page
     greg_page.show()
-
 elif st.session_state.current_page == "zoey":
     import pages.nurse_zoey_zoe as zoey_page
     zoey_page.show()
-
 elif st.session_state.current_page == "nora":
     import pages.nora as nora_page
     nora_page.show()
-
-

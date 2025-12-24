@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit as st
 import requests
 from openai import OpenAI
 
@@ -84,18 +83,126 @@ def show():
     if agent_key not in st.session_state.chat_history:
         st.session_state.chat_history[agent_key] = []
 
-    # DESIGN & STYLING (same as Nora v2)
+    # DESIGN & STYLING
     st.markdown("""
     <style>
-        # (Full CSS from Nora v2 — copy from Nora)
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
+       
+        .stApp {
+            background: linear-gradient(to bottom, #f5f7fa, #e0e7f0);
+            color: #1e3a2f;
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2d6a4f;
+            font-weight: 600;
+        }
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea,
+        .stSelectbox > div > div > div[data-baseweb="select"] > div,
+        .stMultiSelect > div > div > div,
+        .stNumberInput > div > div > input {
+            background-color: white !important;
+            color: #1e3a2f !important;
+            border: 2px solid #a0c4d8 !important;
+            border-radius: 10px !important;
+            padding: 12px !important;
+        }
+        .stMultiSelect > div {
+            background-color: white !important;
+        }
+        div[data-baseweb="select"] > div {
+            background-color: white !important;
+            color: #1e3a2f !important;
+        }
+        .stChatInput > div {
+            background-color: white !important;
+            border: 2px solid #2d6a4f !important;
+            border-radius: 20px !important;
+        }
+        .stButton>button {
+            background-color: #2d6a4f;
+            color: white;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        .stButton>button:hover {
+            background-color: #40916c;
+        }
+        img {
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .personality-box {
+            background-color: #f0f7fc;
+            border: 2px solid #a0c4d8;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        .separator {
+            margin: 35px 0;
+            border-top: 1px solid #c0d8e0;
+        }
+        /* Back to Top Button — Bottom-Left */
+        #backToTopBtn {
+            position: fixed;
+            bottom: 120px;
+            left: 20px;
+            z-index: 999;
+            display: none;
+            background-color: #2d6a4f;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #backToTopBtn:hover {
+            background-color: #40916c;
+            transform: scale(1.1);
+        }
+        #report-anchor, #chat-anchor {
+            margin-top: 100px;
+        }
     </style>
     """, unsafe_allow_html=True)
 
-    # Back to Top + Auto-Focus Disable (same as Nora v2)
+    # Back to Top Button + Disable Chat Auto-Focus
     st.markdown("""
     <button id="backToTopBtn">↑ Back to Top</button>
     <script>
-        # (Full JS from Nora v2)
+        const btn = document.getElementById('backToTopBtn');
+        const checkScroll = () => {
+            const scrolled = window.pageYOffset > 300 ||
+                             (parent.document.body.scrollTop > 300) ||
+                             (parent.document.documentElement.scrollTop > 300) ||
+                             (parent.document.querySelector('section.main') && parent.document.querySelector('section.main').scrollTop > 300);
+            btn.style.display = scrolled ? 'block' : 'none';
+        };
+        window.addEventListener('load', checkScroll);
+        window.addEventListener('scroll', checkScroll);
+        const mainSection = parent.document.querySelector('section.main');
+        if (mainSection) mainSection.addEventListener('scroll', checkScroll);
+        btn.addEventListener('click', () => {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            if (mainSection) mainSection.scrollTo({top: 0, behavior: 'smooth'});
+        });
+        checkScroll();
+
+        setTimeout(() => {
+            const chatInputs = document.querySelectorAll('input[type="text"]');
+            chatInputs.forEach(input => {
+                if (input.placeholder && input.placeholder.includes("Ask Fred")) {
+                    input.blur();
+                }
+            });
+        }, 500);
     </script>
     """, unsafe_allow_html=True)
 
@@ -156,7 +263,7 @@ The more you select, the more uniquely tailored your home report and our convers
     st.caption("🔮 Your choices will shape both your personalized home report and all follow-up chats!")
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # BLENDED PROMPT WITH GUARDRAILS AND NAME
+    # BLENDED PERSONALITY PROMPT WITH GUARDRAILS AND NAME
     fred_trait_map = {
         "Folksy Scout (default)": "You are folksy, friendly, and knowledgeable about homes. Use casual lingo like 'yeehaw' sparingly.",
         "Professional & Detailed": "Be professional, thorough, and detail-oriented.",
@@ -164,6 +271,15 @@ The more you select, the more uniquely tailored your home report and our convers
         "Calm & Practical": "Use a calm, practical tone. Focus on realistic advice.",
         "Humorous & Light": "Incorporate light humor and fun home puns.",
         "Data-Driven": "Provide data-backed insights, stats, and comparisons."
+    }
+
+    user_trait_map = {
+        "Standard / Adapt naturally": "",
+        "Direct & Concise": "Keep responses short, clear, and straight to the point.",
+        "Warm & Encouraging": "Use lots of positive reinforcement, warmth, and encouragement.",
+        "Detailed & Thorough": "Give comprehensive answers with full explanations and examples.",
+        "Friendly & Chatty": "Be conversational, relaxed, and engaging — like chatting with a friend.",
+        "Gentle & Supportive": "Use soft, empathetic language. Prioritize emotional support and kindness."
     }
 
     fred_modifiers = []

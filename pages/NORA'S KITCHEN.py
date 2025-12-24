@@ -6,7 +6,6 @@ with st.sidebar:
     st.title("LBL Lifestyle Solutions")
     st.caption("Your Holistic Longevity Blueprint ❤️")
 
-# Secrets
 XAI_API_KEY = st.secrets["XAI_API_KEY"]
 RESEND_API_KEY = st.secrets["RESEND_API_KEY"]
 YOUR_EMAIL = st.secrets["YOUR_EMAIL"]
@@ -22,7 +21,7 @@ def show():
     if agent_key not in st.session_state.chat_history:
         st.session_state.chat_history[agent_key] = []
 
-    # DESIGN & STYLING WITH FIXED BACK TO TOP BUTTON
+    # DESIGN & STYLING
     st.markdown("""
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap');
@@ -85,21 +84,26 @@ def show():
             margin: 35px 0;
             border-top: 1px solid #c0d8e0;
         }
-        /* Back to Top Button — FIXED POSITIONING */
+        /* Back to Top Button — Bottom-Left */
         #backToTopBtn {
             position: fixed;
-            bottom: 140px;  /* Raised to clear chat bar */
-            right: 20px;
-            z-index: 900;   /* Below chat input (usually 1000+) */
+            bottom: 120px;
+            left: 20px;
+            z-index: 999;
             display: none;
             background-color: #2d6a4f;
             color: white;
-            padding: 12px 18px;
+            padding: 14px 18px;
             border-radius: 50px;
             border: none;
             font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #backToTopBtn:hover {
+            background-color: #40916c;
+            transform: scale(1.1);
         }
         #report-anchor, #chat-anchor {
             margin-top: 100px;
@@ -129,7 +133,7 @@ def show():
         });
         checkScroll();
 
-        // Disable auto-focus on chat input to prevent unwanted scroll-down on load/refresh
+        // Disable auto-focus on chat input
         setTimeout(() => {
             const chatInputs = document.querySelectorAll('input[type="text"]');
             chatInputs.forEach(input => {
@@ -276,7 +280,7 @@ Adapt tone in real-time based on user input while honoring the selected traits.
         - Make family-friendly Mediterranean recipes 👨‍👩‍👧‍👦
         """)
 
-    # Form inputs (unchanged)
+    # Form inputs
     st.markdown("### Tell Nora a little bit about you and your eating habits 🍴")
     st.write("**Be as detailed as possible!** The more you share about your age, goals, preferences, allergies, budget, and current diet, the better Nora can help. 😊")
     st.caption("💡 Tip: Include favorite foods, foods to avoid, cooking time available, and health priorities!")
@@ -433,7 +437,6 @@ Greg's plan: {greg_plan_text or 'None provided'}
 
                 st.session_state.chat_history[agent_key].append({"role": "assistant", "content": f"Hey {st.session_state.get('user_name', 'friend')}! 🎉 Your personalized meal plan is ready below. Feel free to ask me anything about it! 🍓"})
 
-                # Scroll to report
                 st.markdown("""
                 <script>
                     const reportAnchor = document.getElementById('report-anchor');

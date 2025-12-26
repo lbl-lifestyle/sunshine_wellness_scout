@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from openai import OpenAI
 from geopy.geocoders import Nominatim
+import re
 
 with st.sidebar:
     st.title("LBL Lifestyle Solutions")
@@ -17,6 +18,7 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 geolocator = Nominatim(user_agent="lbl_fred_scout")
 
+# PEXELS FUNCTIONS (refined for specificity)
 def fetch_pexels_image(neighborhood="", location_hint="", theme_hints=""):
     if not PEXELS_API_KEY:
         return None
@@ -82,10 +84,9 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
         enhanced_lines.append(line)
         if "Top 5" in line:
             in_top_5 = True
-        if in_top_5 and line.strip().startswith(('1.', '2.', '3.', '4.', '5.')):
-            parts = line.split('-', 1)
-            if len(parts) > 1:
-                name_part = parts[0].strip()[2:].strip()
+        if in_top_5 and re.match(r'^\d+\.', line.strip()):
+            name_part = re.sub(r'^\d+\.\s*', '', line.strip()).split('-', 1)[0].split(':', 1)[0].split('(', 1)[0].strip()
+            if name_part:
                 img_url = fetch_pexels_image(name_part, location_hint, theme_hints)
                 if img_url and img_url not in seen_urls:
                     enhanced_lines.append("")
@@ -94,6 +95,7 @@ def add_images_to_report(report_text, location_hint="", client_needs=""):
                     seen_urls.add(img_url)
     return '\n'.join(enhanced_lines)
 
+# ENRICHMENT FUNCTIONS
 def get_walk_scores(lat, lon):
     if not WALKSCORE_API_KEY:
         return "Walk Score data unavailable"
@@ -149,10 +151,9 @@ def enrich_report(report_text, state):
         enhanced_lines.append(line)
         if "Top 5" in line:
             in_top_5 = True
-        if in_top_5 and line.strip().startswith(('1.', '2.', '3.', '4.', '5.')):
-            parts = line.split('-', 1)
-            if len(parts) > 1:
-                name_part = parts[0].strip()[2:].strip()
+        if in_top_5 and re.match(r'^\d+\.', line.strip()):
+            name_part = re.sub(r'^\d+\.\s*', '', line.strip()).split('-', 1)[0].split(':', 1)[0].split('(', 1)[0].strip()
+            if name_part:
                 lat, lon = geocode_location(name_part, state)
                 if lat and lon:
                     enhanced_lines.append(f"\n**Wellness Enrichment for {name_part}:**")
@@ -259,7 +260,7 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Back to Top Button + Disable Chat Auto-Focus
+    # Back to Top Button
     st.markdown("""
     <button id="backToTopBtn">↑ Back to Top</button>
     <script>
@@ -291,7 +292,7 @@ def show():
     st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", use_column_width=True)
     st.markdown("<h1>Meet Fred – Your Wellness Home Scout 🏡</h1>", unsafe_allow_html=True)
     st.caption("Find a home or rental that supports your active, healthy lifestyle.")
-    st.markdown("Fred helps buyers and renters discover longevity-friendly homes through walkability, clean air, nature access, quiet, and wellness features.")
+    st.markdown("Fred helps buyers and renters discover longevity-friendly homes through clean air, walkability, nature access, quiet, and wellness features.")
 
     # PERSONALITY
     st.markdown("<div class='personality-box'>", unsafe_allow_html=True)
@@ -314,12 +315,12 @@ def show():
 You are Fred, the Wellness Home Scout for LBL Lifestyle Solutions. You help users find or rent homes that support longevity through clean air, walkability, nature access, quiet, and wellness features.
 Be {agent_traits_str}.
 Respond in a {user_prefs_str} style.
-Use the user's name if provided.
+Use the user's name: {user_name}.
 
 Always include:
 - Top 5 Neighborhoods/Suburbs with brief longevity reasoning
-- Top 5 Must-Have Features for each neighborhood
-- If additional sections requested, include them as headings with content
+- Top 5 Must-Have Features for each
+- If additional sections selected, include each as a heading with content
 
 Guardrails:
 - Stay in character. Redirect off-topic to home search.
@@ -329,7 +330,8 @@ Guardrails:
 
     agent_traits_str = " and ".join(agent_traits).lower()
     user_prefs_str = " and ".join(user_prefs).lower()
-    st.session_state.fred_personality_prompt = base_personality.format(agent_traits_str=agent_traits_str, user_prefs_str=user_prefs_str)
+    user_name = st.session_state.user_name if "user_name" in st.session_state else "friend"
+    st.session_state.fred_personality_prompt = base_personality.format(agent_traits_str=agent_traits_str, user_prefs_str=user_prefs_str, user_name=user_name)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -337,22 +339,26 @@ Guardrails:
     st.success("Fred is a free educational tool, not professional real estate or medical advice. Always consult licensed experts. 🏡❤️")
     st.warning("Reports are AI-generated based on public data – verify with local sources.")
 
-    # NAME
+    # USER NAME
     st.session_state.user_name = st.text_input("Your Name (for personalized responses)", value=st.session_state.get("user_name", ""))
+
+    # ✨ Let's Make This Truly Personal!
+    st.markdown("### ✨ Let's Make This Truly Personal!")
+    st.caption("Fill in these details for a report tailored just for you 🏡❤️")
 
     # QUICK STARTS
     with st.expander("Quick Starts (Optional)"):
-        st.caption("Click for instant inspiration!")
+        st.caption("Click a button for instant inspiration!")
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("Top 5 wellness neighborhoods in Florida under $600k"):
-                st.session_state.quick_start = "Top 5 wellness neighborhoods in Florida under $600k"
+                client_needs = "Top 5 wellness neighborhoods in Florida under $600k"
         with col2:
             if st.button("Best rentals near trails in Sarasota"):
-                st.session_state.quick_start = "Best rentals near trails in Sarasota"
+                client_needs = "Best rentals near trails in Sarasota"
         with col3:
             if st.button("Modify my condo for aging in place"):
-                st.session_state.quick_start = "Modify my condo for aging in place"
+                client_needs = "Modify my condo for aging in place"
 
     # FORM
     st.markdown("<div id='report-anchor'></div>", unsafe_allow_html=True)
@@ -369,7 +375,7 @@ Guardrails:
         max_buy = st.text_input("Maximum Purchase Budget", value="750000")
         budget = f"${min_buy}–${max_buy}"
 
-    state = st.selectbox("Preferred State(s)", ["Florida", "North Carolina", "Colorado", "Arizona", "California", "Texas", "Other"], index=0)
+    locations = st.text_input("Preferred Locations (cities/states)", placeholder="e.g., Naples FL, Sarasota FL, Asheville NC")
 
     must_haves = st.multiselect(
         "Must-Have Wellness Features",
@@ -383,7 +389,7 @@ Guardrails:
 
     home_type_options = ["Single family home", "Condo/Townhouse", "55+ community", "Villa/Patio home", "No preference"]
     if "Rent" in buy_or_rent:
-        home_type_options = ["Apartment"] + home_type_options
+        home_type_options.insert(0, "Apartment")
 
     home_type = st.selectbox("Home Type Preference", home_type_options)
 
@@ -398,11 +404,9 @@ Guardrails:
 
     client_needs = st.text_area(
         "Tell Fred what you're looking for – just talk naturally!",
-        value=st.session_state.get("quick_start", ""),
         placeholder="e.g., 'Quiet home near trails in Florida with good air quality.'",
         height=150
     )
-    st.session_state.quick_start = ""  # Clear after use
 
     with st.expander("🔍 Analyze a Specific Property, Neighborhood, or Location (Optional)", expanded=False):
         st.caption("Paste an address, neighborhood, or listing URL for direct evaluation.")
@@ -417,11 +421,11 @@ Guardrails:
         if not client_needs and not specific_input:
             st.error("Please share some details!")
         else:
-            with st.spinner("Fred is scouting..."):
+            with st.spinner("Fred is scouting... 🏡"):
                 try:
                     structured_inputs = f"""
 User is {buy_or_rent.lower()}. Budget: {budget}.
-Preferred state: {state}.
+Preferred locations: {locations or 'Florida'}.
 Must-haves: {', '.join(must_haves) or 'None'}.
 Deal-breakers: {', '.join(deal_breakers) or 'None'}.
 Home type: {home_type}.
@@ -442,24 +446,25 @@ Additional sections: {', '.join(additional_sections) or 'None'}.
                     response = client.chat.completions.create(
                         model=MODEL_NAME,
                         messages=messages,
-                        max_tokens=1500,
+                        max_tokens=2000,
                         temperature=0.7
                     )
                     report_text = response.choices[0].message.content
 
-                    enriched_report = enrich_report(report_text, state)
-                    full_report = add_images_to_report(enriched_report, state, client_needs)
+                    enriched_report = enrich_report(report_text, locations or "Florida")
+                    full_report = add_images_to_report(enriched_report, locations or "Florida", client_needs)
 
-                    st.success("Report ready! Preview below – full version emailed.")
-                    st.markdown(full_report[:2000] + "\n\n... (full report in email)")
+                    st.success("Your Wellness Home Report is ready!")
+                    st.markdown(full_report)
+
                     st.session_state.full_report_for_email = full_report
                 except Exception as e:
                     st.error(f"Error: {str(e)}")
 
-    # EMAIL FORM (no rerun)
+    # EMAIL FORM
     if "full_report_for_email" in st.session_state:
         with st.form("email_form"):
-            st.markdown("### Get the Full Report Emailed")
+            st.markdown("### Get a Copy of the Full Report Emailed")
             email = st.text_input("Your Email", placeholder="you@example.com")
             phone = st.text_input("Phone (optional)")
             submitted = st.form_submit_button("📧 Send My Full Report")
@@ -495,7 +500,7 @@ Fred & the LBL Team 🏡"""
                         else:
                             st.error(f"Send failed: {response.text}")
                     except Exception as e:
-                        st.error(f"Error: {str(e)}")
+                        st.error(f"Send error: {str(e)}")
 
     # CHAT SECTION
     st.markdown("<div id='chat-anchor'></div>", unsafe_allow_html=True)

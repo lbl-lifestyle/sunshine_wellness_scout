@@ -17,7 +17,7 @@ client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 MODEL_NAME = "grok-4-1-fast-reasoning"
 geolocator = Nominatim(user_agent="lbl_fred_scout")
 
-# WALK SCORE & AIRNOW (kept for enrichment, but no lat/lon shown)
+# WALK SCORE & AIRNOW ENRICHMENT (no lat/lon shown to user)
 def get_walk_scores(lat, lon):
     if not WALKSCORE_API_KEY:
         return "Walk Score data unavailable"
@@ -174,7 +174,7 @@ def show():
     </style>
     """, unsafe_allow_html=True)
 
-    # Back to Top
+    # Back to Top Button
     st.markdown("""
     <button id="backToTopBtn">↑ Back to Top</button>
     <script>
@@ -192,7 +192,7 @@ def show():
     </script>
     """, unsafe_allow_html=True)
 
-    # HERO & WELCOME (original restored)
+    # HERO & WELCOME
     st.image("https://i.postimg.cc/MGxQfXtd/austin-distel-h1RW-NFt-Uyc-unsplash.jpg", use_column_width=True)
     st.markdown("<h1>Meet Fred – Your Patient Wellness Home Scout 🏡</h1>", unsafe_allow_html=True)
     st.markdown("**Take your time.** I’m here to help you find (or create) a home that truly supports a longer, healthier, more joyful life — whether buying, renting, or just exploring ideas.")
@@ -209,15 +209,13 @@ def show():
     agent_traits = st.multiselect(
         "Fred's Personality Traits",
         ["Friendly & Encouraging", "Professional & Efficient", "Analytical & Data-Driven", "Creative & Visionary", "Humorous & Light-Hearted"],
-        default=["Friendly & Encouraging"],
-        key="agent_traits"
+        default=["Friendly & Encouraging"]
     )
 
     user_prefs = st.multiselect(
         "How You Like to Communicate",
         ["Detailed & Thorough", "Direct & Concise", "Empathetic & Supportive", "Inspirational & Motivating", "Casual & Conversational"],
-        default=["Detailed & Thorough"],
-        key="user_prefs"
+        default=["Detailed & Thorough"]
     )
 
     st.markdown("</div>", unsafe_allow_html=True)
@@ -282,12 +280,10 @@ def show():
 
     household = st.multiselect("Who is this home for? (select all that apply)", ["Solo", "Couple", "Family with kids", "Multi-generational", "Pets"])
 
-    # OPTIONAL SECTIONS (3 minimum always included)
-    st.caption("Want deeper insights? These three are always included — choose more if you'd like:")
+    st.caption("These three sections are always included — choose more if you'd like")
     additional_sections = st.multiselect(
         "Extra Topics for Your Report",
-        ["Cost of Living & Financial Breakdown", "Climate & Seasonal Wellness Tips", "Transportation & Daily Convenience", "Future-Proofing for Aging in Place", "Sample Daily Wellness Routine in This Area", "Top Property Recommendations"],
-        help="Wellness/Outdoor Highlights, Healthcare Access & Longevity Metrics, and Community & Social Wellness are always in your report"
+        ["Cost of Living & Financial Breakdown", "Climate & Seasonal Wellness Tips", "Transportation & Daily Convenience", "Future-Proofing for Aging in Place", "Sample Daily Wellness Routine in This Area", "Top Property Recommendations"]
     )
 
     client_needs = st.text_area(
@@ -343,6 +339,7 @@ Always include these three sections:
 Include any extra sections the user selected.
 Always include Top 5 Neighborhoods/Suburbs with brief longevity reasoning and Top 5 Must-Have Features for each.
 Do not include latitude/longitude coordinates.
+Do not use bullets or asterisks for main content — use flowing paragraphs.
 """
 
                     messages = [
@@ -359,18 +356,17 @@ Do not include latitude/longitude coordinates.
                     report_text = response.choices[0].message.content
 
                     enriched_report = enrich_report(report_text, locations or "Florida")
-                    # Pexels paused — no images for now to avoid mismatches
-                    full_report = enriched_report
+                    full_report = enriched_report  # Pexels paused
 
                     st.session_state.full_report_for_email = full_report
                 except Exception as e:
                     st.error(f"Something went wrong: {str(e)}. Please try again.")
 
-    # PERSISTENT FULL REPORT DISPLAY
+    # PERSISTENT FULL REPORT DISPLAY (always visible if generated)
     if "full_report_for_email" in st.session_state:
         st.markdown("<div id='report-anchor'></div>", unsafe_allow_html=True)
         st.markdown("### Your Personalized Wellness Home Report 🏡")
-        st.caption("Made just for you — with care")
+        st.caption("Made just for you — feel free to scroll and reference while we chat")
         st.markdown(st.session_state.full_report_for_email)
 
         # EMAIL FORM
@@ -424,7 +420,7 @@ Fred & the LBL Team 🏡❤️
                     except:
                         st.error("Connection issue — please try again")
 
-    # CHAT SECTION
+    # CHAT SECTION (chat can reference report)
     st.markdown("<div id='chat-anchor'></div>", unsafe_allow_html=True)
     st.markdown("### Ready to talk about your report?")
     st.caption("Ask me anything — I'm here to help refine or explain")
@@ -441,13 +437,14 @@ Fred & the LBL Team 🏡❤️
 
         with st.spinner("Thinking..."):
             try:
-                # Chat uses selected personality
+                # Chat uses selected personality and can reference report
                 chat_prompt = f"""
 You are Fred. Be {' and '.join(agent_traits).lower()}.
 Respond in a {' and '.join(user_prefs).lower()} style.
 Use the user's name if provided.
 Reference the report if relevant.
 Stay warm and caring.
+Report content: {st.session_state.full_report_for_email if "full_report_for_email" in st.session_state else 'No report generated yet'}
 """
 
                 messages = [

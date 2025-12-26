@@ -4,3 +4,4 @@ requests
 PyPDF2==3.0.1
 pytesseract==0.3.10
 streamlit-analytics2
+geopy
